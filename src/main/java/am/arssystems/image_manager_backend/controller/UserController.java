@@ -13,15 +13,21 @@ import am.arssystems.image_manager_backend.dto.response.LoginResponseForDesktop;
 import am.arssystems.image_manager_backend.dto.response.RegisterResponse;
 import am.arssystems.image_manager_backend.dto.response.VerifyResponse;
 import am.arssystems.image_manager_backend.entity.User;
+import am.arssystems.image_manager_backend.entity.UserImage;
+import am.arssystems.image_manager_backend.repository.UserImageRepository;
 import am.arssystems.image_manager_backend.repository.UserRepository;
 import am.arssystems.image_manager_backend.security.CurrentUser;
 import am.arssystems.image_manager_backend.security.JwtTokenUtil;
 import am.arssystems.image_manager_backend.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+
+import java.io.File;
+import java.util.List;
 
 @RestController
 @RequestMapping(value = "/user")
@@ -29,13 +35,18 @@ public class UserController {
 
     private UserService userService;
     private UserRepository userRepository;
+    private UserImageRepository userImageRepository;
     private PasswordEncoder passwordEncoder;
     private JwtTokenUtil jwtTokenUtil;
+    @Value("${image.folder}")
+    private String imageDirection;
 
 
     @Autowired
     public UserController(UserService userService, UserRepository userRepository,
-                          PasswordEncoder passwordEncoder, JwtTokenUtil jwtTokenUtil) {
+                          PasswordEncoder passwordEncoder, JwtTokenUtil jwtTokenUtil,
+                          UserImageRepository userImageRepository) {
+        this.userImageRepository = userImageRepository;
         this.jwtTokenUtil = jwtTokenUtil;
         this.passwordEncoder = passwordEncoder;
         this.userService = userService;
@@ -139,8 +150,7 @@ public class UserController {
                     .message("Ok")
                     .build());
         }
-    }forgotPassword +changePassAfterForgot
-
+    }
 
     @PostMapping("/changePassAfterForgot")
     public ResponseEntity changePasswordAfterForgot(@RequestBody ChangePasswordAfterForgotRequest changePasswordAfterForgotRequest){
@@ -165,7 +175,24 @@ public class UserController {
                 .success(false)
                 .message("Invalid code")
                 .build());
+    }
 
+
+    @DeleteMapping("/")
+    public ResponseEntity deleteUser(@AuthenticationPrincipal CurrentUser currentUser){
+        User user = currentUser.getUser();
+        List<UserImage> userImages = userImageRepository.fiAllByUser(user);
+        for (UserImage userImage : userImages) {
+            String picName = userImage.getPicName();
+            File image = new File(imageDirection+picName);
+            image.delete();
+            userImageRepository.delete(userImage);
+        }
+        userRepository.delete(user);
+        return ResponseEntity.ok(Response.builder()
+                .success(true)
+                .message("User deleted")
+                .build());
     }
 
 }

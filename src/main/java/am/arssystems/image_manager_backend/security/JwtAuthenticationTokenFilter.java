@@ -61,6 +61,7 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
                         response.sendError(403, "Փոփոխվել է հեռախոսի համար կամ գաղտնաբառ");
                         return;
                     }
+
                 } catch (ExpiredJwtException e) {
 //                // սա աշխատում է այն ժամանակ երբ թոկենի ժամանակը լրացել է, այսինքն թոկենը էլ ակտիվ չէ
                 } catch (Exception e) {
@@ -76,8 +77,7 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
             UserDetails userDetails = this.userDetailsService.loadUserByUsername(usernamelowercase);
             String tokenId = (String) jwtTokenUtil.getAllClaimsFromToken(authToken).get("id");
 
-            System.out.println("-----1 "+ (currentUser.getId() == tokenId));
-            System.out.println("-----2 "+ (currentUser.getPhoneNumber().equals(currentUserPhoneNumber)));
+
             if (currentUserPhoneNumber != null && jwtTokenUtil.validateToken(authToken, userDetails.getUsername().trim()) &&
                     userDetails.getPassword().equals(jwtTokenUtil.getAllClaimsFromToken(authToken).get("password")) &&
                     currentUser.getId().equals(tokenId ) && currentUser.getPhoneNumber().equals(currentUserPhoneNumber)) {

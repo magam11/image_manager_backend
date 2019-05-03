@@ -91,6 +91,8 @@ public class UserImageController {
         resalt.put("message", "DELETED");
         return ResponseEntity.ok(resalt);
     }
+
+
     @PostMapping("/addImage") //for android
     public ResponseEntity addImage(@AuthenticationPrincipal CurrentUser currentUser,
                                    @RequestParam(name = "picture") MultipartFile multipartFile) throws IOException {
