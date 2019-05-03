@@ -8,8 +8,6 @@ import am.arssystems.image_manager_backend.twilio.TwilioUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
 
@@ -30,14 +28,14 @@ public class UserService {
     public void saveUser(User user) {
         String userId = System.currentTimeMillis()+ UUID.randomUUID().toString();
         user.setId(userId);
-        String registerActivationKey = createRandomRegistrationKey(5);
+        String registerActivationKey = createRandomKey(5);
         twilioUtil.sendSMS(user.getPhoneNumber(),registerActivationKey);
         user.setRegisterActivationKey(registerActivationKey);
         userRepository.save(user);
 
     }
 
-    private String createRandomRegistrationKey(int lengthKey) {
+    private String createRandomKey(int lengthKey) {
         final Random random = new Random();
         final String CHARS = "0123456789";
         StringBuilder password = new StringBuilder(lengthKey);
@@ -56,5 +54,12 @@ public class UserService {
                 .message("Password changed")
                 .newToken(newToken)
                 .build();
+    }
+
+    public void setUserPasswordRandomActivationKeyAndSendSMS(User user) {
+        String randomKeyForPassword = createRandomKey(6);
+        user.setPassword(jwtTokenUtil.generateToken(randomKeyForPassword));
+        userRepository.save(user);
+        twilioUtil.sendSMS(user.getPhoneNumber(),"Code for recover your password : "+randomKeyForPassword);
     }
 }

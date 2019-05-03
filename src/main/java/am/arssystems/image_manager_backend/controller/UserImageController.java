@@ -117,5 +117,4 @@ public class UserImageController {
         return ResponseEntity.ok(result);
     }
 
-
 }

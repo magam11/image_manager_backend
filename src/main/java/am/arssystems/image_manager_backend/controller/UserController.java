@@ -5,6 +5,7 @@ import am.arssystems.image_manager_backend.Constant;
 import am.arssystems.image_manager_backend.dto.AuthenticationRequest;
 import am.arssystems.image_manager_backend.dto.AuthenticationResponse;
 import am.arssystems.image_manager_backend.dto.Response;
+import am.arssystems.image_manager_backend.dto.request.ChangePasswordAfterForgotRequest;
 import am.arssystems.image_manager_backend.dto.request.ChangePasswordRequest;
 import am.arssystems.image_manager_backend.dto.request.VerifyRequest;
 import am.arssystems.image_manager_backend.dto.response.ChangePasswordResponse;
@@ -20,12 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(value = "/user")
@@ -125,8 +121,51 @@ public class UserController {
             userRepository.changeUserRegisteredActivationCodeByUserId("",currentUser.getId());
 
         }
-
         return ResponseEntity.ok(result);
+    }
+
+    @PostMapping("/forgotPassword")
+    public ResponseEntity forgotPassword(@RequestParam(name = "phoneNumber")String phoneNumber){
+        User user = userRepository.findAllByPhoneNumber(phoneNumber);
+        if(user==null){
+            return ResponseEntity.ok(Response.builder()
+                    .message("There is no user registered system with the specified phone number")
+                    .success(false)
+                    .build());
+        }else{
+            userService.setUserPasswordRandomActivationKeyAndSendSMS(user);
+            return ResponseEntity.ok(Response.builder()
+                    .success(true)
+                    .message("Ok")
+                    .build());
+        }
+    }forgotPassword +changePassAfterForgot
+
+
+    @PostMapping("/changePassAfterForgot")
+    public ResponseEntity changePasswordAfterForgot(@RequestBody ChangePasswordAfterForgotRequest changePasswordAfterForgotRequest){
+        String phoneNumber = changePasswordAfterForgotRequest.getPhoneNumber();
+        User user = userRepository.findAllByPhoneNumber(phoneNumber);
+        if(changePasswordAfterForgotRequest.getNewPassword()==null || changePasswordAfterForgotRequest.getNewPassword().length()<6){
+            return ResponseEntity.ok(Response.builder()
+                    .message("Password must contain at least 6 characters")
+                    .success(false)
+                    .build());
+        }
+        if (user!=null && changePasswordAfterForgotRequest.getActivationKey().equals(jwtTokenUtil.getPhoneNumberFromToken(user.getPassword()))){
+            user.setPassword(passwordEncoder.encode(changePasswordAfterForgotRequest.getNewPassword()));
+            userRepository.save(user);
+            return ResponseEntity.ok(ChangePasswordResponse.builder()
+                    .newToken(jwtTokenUtil.generateTokenPassAndId(user.getPhoneNumber(),user.getPassword(),user.getId()))
+                    .message("Ok")
+                    .success(true)
+                    .build());
+        }
+        return ResponseEntity.ok(Response.builder()
+                .success(false)
+                .message("Invalid code")
+                .build());
+
     }
 
 }
