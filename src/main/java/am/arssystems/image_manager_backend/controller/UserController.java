@@ -177,7 +177,6 @@ public class UserController {
                 .build());
     }
 
-
     @DeleteMapping("/")
     public ResponseEntity deleteUser(@AuthenticationPrincipal CurrentUser currentUser){
         User user = currentUser.getUser();
