@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>ImageManager</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="js/home.js"></script>
+</head>
+<body>
+<button type="submit" id="logout_button" onclick="logout()" style="visibility: hidden">Logout</button>
+<div style="visibility: hidden" id="bodyDiv">
+    <div id="userInfo">
+
+        <label id="user-name-label"></label>
+        <label id="user-phoneNumber-label"></label>
+    </div>
+    <!--    <label th:text="${loginedUser.getName()}" th:value="${loginedUser.getName()}"></label>-->
+    <!--    <label th:text="${currentUser.getName()}" th:value="${currentUser.getName()}"></label>-->
+
+</div>
+
+<div class="login" th:if="${!isLoggedIn}" id="login_div">
+    <input type="text" name="phoneNumber" placeholder="Phone number" id="phoneNumberInput"/></br>
+    <input type="password" name="password" placeholder="Password" id="passwordInput"/></br>
+    <label id="failureloginText_label" style="visibility: hidden"></label></br>
+
+    <div class="form-group">
+        <label for="remember" style="text-decoration: #3b003b; size: 20px; color: black"> Հիշե՞լ</label>
+        <input id="remember" type="checkbox" name="remember-me" value="true"/>
+    </div>
+
+    <button type="submit" onclick="login(document.getElementById('phoneNumberInput').value, document.getElementById('passwordInput').value)">Login</button>
+</div>
+
+
+</body>
+</html>

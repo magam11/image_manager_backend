@@ -76,8 +76,6 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
             String usernamelowercase = currentUser.getPhoneNumber();
             UserDetails userDetails = this.userDetailsService.loadUserByUsername(usernamelowercase);
             String tokenId = (String) jwtTokenUtil.getAllClaimsFromToken(authToken).get("id");
-
-
             if (currentUserPhoneNumber != null && jwtTokenUtil.validateToken(authToken, userDetails.getUsername().trim()) &&
                     userDetails.getPassword().equals(jwtTokenUtil.getAllClaimsFromToken(authToken).get("password")) &&
                     currentUser.getId().equals(tokenId ) && currentUser.getPhoneNumber().equals(currentUserPhoneNumber)) {

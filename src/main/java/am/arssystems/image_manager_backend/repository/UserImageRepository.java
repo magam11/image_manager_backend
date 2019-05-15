@@ -15,6 +15,6 @@ public interface UserImageRepository extends JpaRepository<UserImage, String> {
     @Query(value = "select e.picSize from UserImage e where e.picName=:picName")
     double getPicSizeByPicName(@Param("picName")String picName);
     int countAllByUser(User user);
-
-    List<UserImage> fiAllByUser(User user);
+    @Query(value = "select ui from UserImage  ui where ui.user=:user")
+    List<UserImage> fiAllByUser(@Param("user") User user);
 }

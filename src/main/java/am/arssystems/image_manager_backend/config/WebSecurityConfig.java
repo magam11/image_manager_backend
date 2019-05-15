@@ -49,8 +49,18 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers(HttpMethod.POST, "/user/changepassword").hasAnyAuthority("user")
                 .antMatchers(HttpMethod.POST, "/image/addImage").hasAnyAuthority("user")
+                .antMatchers(HttpMethod.GET, "/userInfo").hasAnyAuthority("user")
+                .anyRequest().permitAll()
+               /* .and()
+                .rememberMe()
+                .tokenValiditySeconds(2*604800) // 1 week
+                .and()
+                .formLogin()
+                .loginPage("/home")
+                .usernameParameter("phoneNumber")
+                .passwordParameter("password")
+                .defaultSuccessUrl("/loginSuccess")*/;
 
-                .anyRequest().permitAll();
         // Custom JWT based security filter
 //        http.addFilterBefore(JwtExpiredFilter(),UsernamePasswordAuthenticationFilter.class);
         http.addFilterBefore(authenticationTokenFilterBean(), UsernamePasswordAuthenticationFilter.class);
