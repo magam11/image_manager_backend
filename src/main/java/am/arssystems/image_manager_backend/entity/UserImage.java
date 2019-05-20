@@ -14,11 +14,13 @@ import javax.persistence.*;
 @Builder
 @Entity
 @Table(name = "user_image")
+//@Embeddable
 public class UserImage {
 
+//    @Id
+//    @Column
+//    private String id;
     @Id
-    @Column
-    private String id;
     @Column(name = "pic_name")
     private String picName;
     @Column(name = "pic_size")

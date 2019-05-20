@@ -107,7 +107,6 @@ public class UserImageController {
             result.put("success", true);
             double imageFileSize = imageService.getImageFileSize(image);
             userImageRepository.save(UserImage.builder()
-                    .id(System.currentTimeMillis() + "_" + UUID.randomUUID().toString())
                     .picName(filename)
                     .user(user)
                     .picSize(imageFileSize)

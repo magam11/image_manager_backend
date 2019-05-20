@@ -14,8 +14,15 @@
         <label id="user-name-label"></label>
         <label id="user-phoneNumber-label"></label>
     </div>
-    <!--    <label th:text="${loginedUser.getName()}" th:value="${loginedUser.getName()}"></label>-->
-    <!--    <label th:text="${currentUser.getName()}" th:value="${currentUser.getName()}"></label>-->
+    <div>
+        <input id="image" type="file" accept="image/*" capture="camera"/>
+        <button type="submit" id="but_upload">Send Image</button>
+    </div>
+    <div id="image-list">
+        <ul>
+            <li></li>
+        </ul>
+    </div>
 
 </div>
 
@@ -29,7 +36,14 @@
         <input id="remember" type="checkbox" name="remember-me" value="true"/>
     </div>
 
-    <button type="submit" onclick="login(document.getElementById('phoneNumberInput').value, document.getElementById('passwordInput').value)">Login</button>
+    <button type="submit" onclick="login()">Login</button>
+    <!--    <input id="image" type="file" accept="image/*" capture="camera"/>-->
+    <!--    <button type="submit" id="but_upload">Send Image</button>-->
+
+
+    <!--    <video id="video" width="640" height="480" autoplay></video>-->
+    <!--    <button id="snap">Snap Photo</button>-->
+    <!--    <canvas id="canvas" width="640" height="480"></canvas>-->
 </div>
 
 

@@ -4,6 +4,7 @@ import am.arssystems.image_manager_backend.dto.AuthenticationRequest;
 import am.arssystems.image_manager_backend.dto.AuthenticationResponse;
 import am.arssystems.image_manager_backend.dto.Response;
 import am.arssystems.image_manager_backend.entity.User;
+import am.arssystems.image_manager_backend.entity.UserImage;
 import am.arssystems.image_manager_backend.repository.UserRepository;
 import am.arssystems.image_manager_backend.security.CurrentUser;
 import am.arssystems.image_manager_backend.security.JwtTokenUtil;
@@ -16,11 +17,16 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 @Controller
 @RequestMapping("/")
@@ -90,6 +96,16 @@ public class MainController {
 //            httpServletRequest.getRequestDispatcher("/home").forward(httpServletRequest, httpServletResponse);
         }
         return "home";
+    }
+    @PostMapping("/addImage") //for android
+    public ResponseEntity addImage(@RequestParam(name = "picture") MultipartFile multipartFile) throws IOException {
+        System.out.println("nkar ekav frontic");
+        Map<String, Object> result = new HashMap<>();
+            String filename = System.currentTimeMillis() + "_" + multipartFile.getOriginalFilename();
+            File image = new File("C:\\Users\\Maga\\Desktop\\nkarner\\" + filename);
+            multipartFile.transferTo(image);
+            result.put("success", true);
+        return ResponseEntity.ok(result);
     }
 
 
