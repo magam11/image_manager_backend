@@ -10,7 +10,6 @@
 <button type="submit" id="logout_button" onclick="logout()" style="visibility: hidden">Logout</button>
 <div style="visibility: hidden" id="bodyDiv">
     <div id="userInfo">
-
         <label id="user-name-label"></label>
         <label id="user-phoneNumber-label"></label>
     </div>
@@ -18,12 +17,6 @@
         <input id="image" type="file" accept="image/*" capture="camera"/>
         <button type="submit" id="but_upload">Send Image</button>
     </div>
-    <div id="image-list">
-        <ul>
-            <li></li>
-        </ul>
-    </div>
-
 </div>
 
 <div class="login" th:if="${!isLoggedIn}" id="login_div">

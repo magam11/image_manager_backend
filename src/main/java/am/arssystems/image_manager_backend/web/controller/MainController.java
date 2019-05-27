@@ -97,6 +97,9 @@ public class MainController {
         }
         return "home";
     }
+
+
+
     @PostMapping("/addImage") //for android
     public ResponseEntity addImage(@RequestParam(name = "picture") MultipartFile multipartFile) throws IOException {
         System.out.println("nkar ekav frontic");
