@@ -21,4 +21,5 @@ public interface UserRepository extends JpaRepository<User, String> {
     @Query(value = "update User u set u.registerActivationKey =:newRegisterActivationKey where u.id =:userId")
     void changeUserRegisteredActivationCodeByUserId( @Param("newRegisterActivationKey") String newRegisterActivat,
             @Param("userId") String userId);
+
 }

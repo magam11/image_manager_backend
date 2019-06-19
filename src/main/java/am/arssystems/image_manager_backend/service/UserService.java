@@ -1,65 +1,20 @@
 package am.arssystems.image_manager_backend.service;
 
 import am.arssystems.image_manager_backend.dto.response.ChangePasswordResponse;
+import am.arssystems.image_manager_backend.dto.response.UserData;
 import am.arssystems.image_manager_backend.entity.User;
-import am.arssystems.image_manager_backend.repository.UserRepository;
-import am.arssystems.image_manager_backend.security.JwtTokenUtil;
-import am.arssystems.image_manager_backend.twilio.TwilioUtil;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
-import java.util.Random;
-import java.util.UUID;
+public interface UserService {
 
-@Service
-public class UserService {
+    String createRandomKey(int lengthKey);
 
-    private UserRepository userRepository;
-    private TwilioUtil twilioUtil;
-    private JwtTokenUtil jwtTokenUtil;
+    ChangePasswordResponse changePassword(User user, String newPassword);
 
-    @Autowired
-    public UserService (UserRepository userRepository, TwilioUtil twilioUtil,
-                        JwtTokenUtil jwtTokenUtil){
-        this.userRepository = userRepository;
-        this.twilioUtil = twilioUtil;
-    }
+    void saveUser(User user);
 
-    public void saveUser(User user) {
-        String userId = System.currentTimeMillis()+ UUID.randomUUID().toString();
-        user.setId(userId);
-        String registerActivationKey = createRandomKey(5);
-        twilioUtil.sendSMS(user.getPhoneNumber(),registerActivationKey);
-        user.setRegisterActivationKey(registerActivationKey);
-        userRepository.save(user);
+    void setUserPasswordRandomActivationKeyAndSendSMS(User user);
 
-    }
+    UserData getBaseUserData(User user, int pageIndex);
 
-    private String createRandomKey(int lengthKey) {
-        final Random random = new Random();
-        final String CHARS = "0123456789";
-        StringBuilder password = new StringBuilder(lengthKey);
-        for (int i = 0; i < lengthKey; i++) {
-            password.append(CHARS.charAt(random.nextInt(CHARS.length())));
-        }
-        return password.toString();
-    }
-
-
-    public ChangePasswordResponse changePassword(User user, String newPassword) {
-        String newToken = jwtTokenUtil.generateTokenPassAndId(user.getPhoneNumber(),newPassword,user.getId());
-        userRepository.changeUserPasswordByUserId(newPassword,user.getId());
-        return ChangePasswordResponse.builder()
-                .success(true)
-                .message("Password changed")
-                .newToken(newToken)
-                .build();
-    }
-
-    public void setUserPasswordRandomActivationKeyAndSendSMS(User user) {
-        String randomKeyForPassword = createRandomKey(6);
-        user.setPassword(jwtTokenUtil.generateToken(randomKeyForPassword));
-        userRepository.save(user);
-        twilioUtil.sendSMS(user.getPhoneNumber(),"Code for recover your password : "+randomKeyForPassword);
-    }
+    int getTotalPageCount(int allCount, int preSize);
 }

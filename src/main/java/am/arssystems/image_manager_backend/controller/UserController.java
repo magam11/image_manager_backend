@@ -8,26 +8,30 @@ import am.arssystems.image_manager_backend.dto.Response;
 import am.arssystems.image_manager_backend.dto.request.ChangePasswordAfterForgotRequest;
 import am.arssystems.image_manager_backend.dto.request.ChangePasswordRequest;
 import am.arssystems.image_manager_backend.dto.request.VerifyRequest;
-import am.arssystems.image_manager_backend.dto.response.ChangePasswordResponse;
-import am.arssystems.image_manager_backend.dto.response.LoginResponseForDesktop;
-import am.arssystems.image_manager_backend.dto.response.RegisterResponse;
-import am.arssystems.image_manager_backend.dto.response.VerifyResponse;
+import am.arssystems.image_manager_backend.dto.response.*;
 import am.arssystems.image_manager_backend.entity.User;
 import am.arssystems.image_manager_backend.entity.UserImage;
+import am.arssystems.image_manager_backend.entity.View;
 import am.arssystems.image_manager_backend.repository.UserImageRepository;
 import am.arssystems.image_manager_backend.repository.UserRepository;
 import am.arssystems.image_manager_backend.security.CurrentUser;
 import am.arssystems.image_manager_backend.security.JwtTokenUtil;
 import am.arssystems.image_manager_backend.service.UserService;
+import am.arssystems.image_manager_backend.service.serviceImpl.UserServiceImpl;
+import com.fasterxml.jackson.annotation.JsonView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 @RestController
 @RequestMapping(value = "/user")
@@ -43,7 +47,7 @@ public class UserController {
 
 
     @Autowired
-    public UserController(UserService userService, UserRepository userRepository,
+    public UserController(UserServiceImpl userService, UserRepository userRepository,
                           PasswordEncoder passwordEncoder, JwtTokenUtil jwtTokenUtil,
                           UserImageRepository userImageRepository) {
         this.userImageRepository = userImageRepository;
@@ -51,6 +55,15 @@ public class UserController {
         this.passwordEncoder = passwordEncoder;
         this.userService = userService;
         this.userRepository = userRepository;
+    }
+
+    @GetMapping("/data/page/{pageNumber}")
+    @JsonView(View.Base.class)
+    public ResponseEntity getUserData(@AuthenticationPrincipal CurrentUser currentUser,
+                                      @PathVariable("pageNumber")int pageNumber){
+       UserData response =  userService.getBaseUserData(currentUser.getUser(),pageNumber);
+       return ResponseEntity.ok(response);
+
     }
 
     @PostMapping("/register") // for android
@@ -99,7 +112,7 @@ public class UserController {
         if (user == null || !passwordEncoder.matches(authenticationRequest.getPassword(), user.getPassword())) {
             return ResponseEntity.ok(LoginResponseForDesktop.builder()
                     .success(false)
-                    .message("Invalid entered phone number or password")
+                    .message("Invalid phone number or password")
                     .build());
         } else {
             if (user.getRegisterActivationKey().isEmpty()) {
@@ -180,7 +193,9 @@ public class UserController {
     @DeleteMapping("/")
     public ResponseEntity deleteUser(@AuthenticationPrincipal CurrentUser currentUser){
         User user = currentUser.getUser();
-        List<UserImage> userImages = userImageRepository.fiAllByUser(user);
+        Map<String,Object> map = new HashMap<>();
+        Set<String> keySet = map.keySet();
+        List<UserImage> userImages = userImageRepository.getAllByUser(user);
         for (UserImage userImage : userImages) {
             String picName = userImage.getPicName();
             File image = new File(imageDirection+picName);

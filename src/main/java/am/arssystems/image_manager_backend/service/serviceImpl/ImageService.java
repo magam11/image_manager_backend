@@ -1,4 +1,4 @@
-package am.arssystems.image_manager_backend.service;
+package am.arssystems.image_manager_backend.service.serviceImpl;
 
 import org.springframework.stereotype.Service;
 
