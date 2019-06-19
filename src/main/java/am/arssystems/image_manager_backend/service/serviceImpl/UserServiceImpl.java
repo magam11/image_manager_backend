@@ -88,6 +88,7 @@ public class UserServiceImpl implements UserService {
                 .totoalPageCount(getTotalPageCount(userImageRepository.countAllByUserAndAndDeletedAtIsNull(user),preSize))
                 .fruction(userImageRepository.countAllByUserAndAndDeletedAtIsNull(user) + "/" + limitCountofImage)
                 .build();
+
     }
 
     @Override
