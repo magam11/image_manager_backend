@@ -25,6 +25,8 @@ public class UserData {
     private int totoalPageCount;
     @JsonView(View.Extra.class)
     private List<String> deletedImageNames;
+    @JsonView(View.Base.class)
+    private String phoneNumber;
 
 
     public UserData(List<UserImage> pictureNames,String fruction){

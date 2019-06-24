@@ -1,16 +1,19 @@
 package am.arssystems.image_manager_backend.controller;
 
+import am.arssystems.image_manager_backend.dto.request.ImageManagerRequest;
 import am.arssystems.image_manager_backend.dto.response.ListOfPickNames;
 import am.arssystems.image_manager_backend.entity.User;
 import am.arssystems.image_manager_backend.entity.UserImage;
 import am.arssystems.image_manager_backend.repository.UserImageRepository;
 import am.arssystems.image_manager_backend.security.CurrentUser;
-import am.arssystems.image_manager_backend.service.serviceImpl.ImageService;
+import am.arssystems.image_manager_backend.service.ImageService;
 import org.apache.tomcat.util.http.fileupload.IOUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -30,6 +33,7 @@ public class UserImageController {
 
     @Value("${image.folder}")
     private String imagesDereqtion;
+
     @Value("${count.limit}")
     private String limit;
 
@@ -37,11 +41,12 @@ public class UserImageController {
     private UserImageRepository userImageRepository;
     private ImageService imageService;
 
-    public UserImageController(UserImageRepository userImageRepository,ImageService imageService){
+    @Autowired
+    public UserImageController(UserImageRepository userImageRepository,
+                               ImageService imageService) {
         this.imageService = imageService;
         this.userImageRepository = userImageRepository;
     }
-
 
 
     @PostMapping("/listPickNames") //for desktop
@@ -52,8 +57,6 @@ public class UserImageController {
                 .pickNames(pickNames)
                 .build());
     }
-
-
 
 
     @RequestMapping(value = "/{pickName}", method = RequestMethod.GET) //for desktop
@@ -116,5 +119,23 @@ public class UserImageController {
         }
         return ResponseEntity.ok(result);
     }
+
+    /**
+     * Set deletedAt currentDate if actionType = delete and set deletedAt = null if actionType = remake
+     *
+     * @param
+     * @param imageManagerRequest  ActionType values (delete, remake)
+     * @return httpStatus.ok (200)
+     * @created 24.06.2019
+     */
+
+    @PutMapping("/")
+    @PreAuthorize("hasAuthority('user')")
+    public ResponseEntity updateUserImageDeletedAt(@RequestBody ImageManagerRequest imageManagerRequest,
+                                                   @AuthenticationPrincipal CurrentUser currentUser) {
+        imageService.setDeletedAtDate(currentUser.getUser(),imageManagerRequest.getPicName(),imageManagerRequest.getActionType());
+        return ResponseEntity.ok().build();
+    }
+
 
 }

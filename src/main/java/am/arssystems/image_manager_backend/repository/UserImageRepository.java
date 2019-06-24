@@ -2,12 +2,11 @@ package am.arssystems.image_manager_backend.repository;
 
 import am.arssystems.image_manager_backend.entity.User;
 import am.arssystems.image_manager_backend.entity.UserImage;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -31,5 +30,15 @@ public interface UserImageRepository extends JpaRepository<UserImage, String> {
     List<UserImage> findAllByUser(@Param("userId") String userId,
                                   @Param("pageNumber")int pageNumber,
                                   @Param("itemsCount")int itemsCount);
-//    Page<UserImage> findAllByUser(@Param("user") User user, Pageable pageable);
+
+    @Modifying
+    @Transactional
+    @Query(value = "update UserImage u set u.deletedAt=current_timestamp where u.user=:user and u.picName=:picName")
+    void updateUserImageDeletedAtByUserAndPicName(@Param("user")User user,
+                                                  @Param("picName")String picName);
+    @Modifying
+    @Transactional
+    @Query(value = "update UserImage u set u.deletedAt=null where u.user=:user and u.picName=:picName")
+    void setUserImageDeletedAtNulByUserAndPicName(@Param("user") User currentUser,
+                                                  @Param("picName") String picName);
 }

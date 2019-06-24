@@ -9,7 +9,6 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
-import java.time.LocalDateTime;
 import java.util.Date;
 
 @AllArgsConstructor
@@ -20,9 +19,6 @@ import java.util.Date;
 @Table(name = "user_image")
 public class UserImage {
 
-    //    @Id
-//    @Column
-//    private String id;
     @Id
     @Column(name = "pic_name")
     @JsonView(View.Base.class)
@@ -34,7 +30,7 @@ public class UserImage {
     private User user;
     @Column(name = "created_at",updatable = false)
     @JsonView(View.Base.class)
-    private String createdAt;
+    private Timestamp createdAt;
     @Column(name = "deleted_at")
     private Date deletedAt;
 

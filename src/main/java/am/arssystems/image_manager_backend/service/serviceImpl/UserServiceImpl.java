@@ -84,6 +84,7 @@ public class UserServiceImpl implements UserService {
     public UserData getBaseUserData(User user, int pageNumber) {
         List<UserImage> resultPage = userImageRepository.findAllByUser(user.getId(),(pageNumber-1)*preSize,preSize);
         return UserData.builder()
+                .phoneNumber(user.getPhoneNumber())
                 .picturesData(resultPage)
                 .totoalPageCount(getTotalPageCount(userImageRepository.countAllByUserAndAndDeletedAtIsNull(user),preSize))
                 .fruction(userImageRepository.countAllByUserAndAndDeletedAtIsNull(user) + "/" + limitCountofImage)

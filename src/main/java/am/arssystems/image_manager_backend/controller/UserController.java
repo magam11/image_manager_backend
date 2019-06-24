@@ -27,6 +27,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.io.File;
 import java.util.HashMap;
 import java.util.List;
@@ -92,18 +93,11 @@ public class UserController {
 
     @PostMapping("/changePassword") // for android
     public ResponseEntity changePasswordByPhoneNumber(@AuthenticationPrincipal CurrentUser currentUser,
-                                                      @RequestBody ChangePasswordRequest changePasswordRequest) {
-        String newPassword = changePasswordRequest.getNewPassword();
-        if (newPassword == null || newPassword.isEmpty() || newPassword.length() < Constant.MIN_LENGTH_OF_PASSWORD) {
-            return ResponseEntity.ok(ChangePasswordResponse.builder()
-                    .message("Password must contain at least 6 characters")
-                    .success(false)
-                    .build());
-        } else {
+                                                      @RequestBody @Valid ChangePasswordRequest changePasswordRequest) {
             User user = currentUser.getUser();
             ChangePasswordResponse response = userService.changePassword(user, changePasswordRequest.getNewPassword());
             return ResponseEntity.ok(response);
-        }
+
     }
 
     @PostMapping("/login")//for desktop
