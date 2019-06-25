@@ -27,12 +27,15 @@ public class UserImage {
     @JsonView(View.Base.class)
     private double picSize;
     @ManyToOne
+    @JoinColumn(name = "user_id")
     private User user;
     @Column(name = "created_at",updatable = false)
     @JsonView(View.Base.class)
     private Timestamp createdAt;
     @Column(name = "deleted_at")
     private Date deletedAt;
+
+
 
 
 //    @PrePersist

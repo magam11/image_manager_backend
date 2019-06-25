@@ -40,8 +40,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void saveUser(User user) {
-        String userId = System.currentTimeMillis() + UUID.randomUUID().toString();
-        user.setId(userId);
         String registerActivationKey = createRandomKey(5);
         twilioUtil.sendSMS(user.getPhoneNumber(), registerActivationKey);
         user.setRegisterActivationKey(registerActivationKey);

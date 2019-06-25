@@ -2,11 +2,14 @@ package am.arssystems.image_manager_backend.controller;
 
 import am.arssystems.image_manager_backend.dto.request.ImageManagerRequest;
 import am.arssystems.image_manager_backend.dto.response.ListOfPickNames;
+import am.arssystems.image_manager_backend.dto.response.NextPreviousImageResponse;
 import am.arssystems.image_manager_backend.entity.User;
 import am.arssystems.image_manager_backend.entity.UserImage;
+import am.arssystems.image_manager_backend.entity.View;
 import am.arssystems.image_manager_backend.repository.UserImageRepository;
 import am.arssystems.image_manager_backend.security.CurrentUser;
 import am.arssystems.image_manager_backend.service.ImageService;
+import com.fasterxml.jackson.annotation.JsonView;
 import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,6 +26,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,6 +46,7 @@ public class UserImageController {
 
     private UserImageRepository userImageRepository;
     private ImageService imageService;
+    private SimpleDateFormat dateFormat = new SimpleDateFormat();
 
     @Autowired
     public UserImageController(UserImageRepository userImageRepository,
@@ -124,7 +131,7 @@ public class UserImageController {
      * Set deletedAt currentDate if actionType = delete and set deletedAt = null if actionType = remake
      *
      * @param
-     * @param imageManagerRequest  ActionType values (delete, remake)
+     * @param imageManagerRequest ActionType values (delete, remake)
      * @return httpStatus.ok (200)
      * @created 24.06.2019
      */
@@ -133,9 +140,33 @@ public class UserImageController {
     @PreAuthorize("hasAuthority('user')")
     public ResponseEntity updateUserImageDeletedAt(@RequestBody ImageManagerRequest imageManagerRequest,
                                                    @AuthenticationPrincipal CurrentUser currentUser) {
-        imageService.setDeletedAtDate(currentUser.getUser(),imageManagerRequest.getPicName(),imageManagerRequest.getActionType());
+        imageService.setDeletedAtDate(currentUser.getUser(), imageManagerRequest.getPicName(), imageManagerRequest.getActionType());
         return ResponseEntity.ok().build();
     }
 
+    /**
+     *
+     */
 
+    @GetMapping("/next")
+    @JsonView(View.Base.class)
+    @PreAuthorize("hasAuthority('user')")
+    public ResponseEntity getNextImageData(@RequestParam(name = "picName") String picName,
+                                           @AuthenticationPrincipal CurrentUser currentUser) {
+        List<UserImage> twoNextImagesByPictureName = imageService.getTwoNextImagesByPictureName(picName, currentUser.getUser());
+        return ResponseEntity.ok(NextPreviousImageResponse.builder()
+                .picturesData(twoNextImagesByPictureName)
+                .build());
+    }
+
+    @GetMapping("/previous")
+    @JsonView(View.Base.class)
+    @PreAuthorize("hasAuthority('user')")
+    public ResponseEntity getPreviousImageData(@RequestParam(name = "picName") String picName,
+                                           @AuthenticationPrincipal CurrentUser currentUser) {
+        List<UserImage> twoPreviousImageByPictureName = imageService.getTwoPreviousImageByPictureName(picName, currentUser.getUser());
+        return ResponseEntity.ok(NextPreviousImageResponse.builder()
+                .picturesData(twoPreviousImageByPictureName)
+                .build());
+    }
 }

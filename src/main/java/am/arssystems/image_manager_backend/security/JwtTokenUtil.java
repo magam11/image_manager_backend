@@ -73,7 +73,7 @@ public class JwtTokenUtil implements Serializable {
         claims.put("password",password);
         return doGenerateToken(claims, email);
     }
-    public String generateTokenPassAndId(String phoneNumber, String password,String id) {//թոկենի գեներացիա ըստ էլ-հասցեի, որում պահվում է նաև կոդավորված գաղտնաբառը, գաղտնաբառը պահվում է "password" բանալիով
+    public String generateTokenPassAndId(String phoneNumber, String password,int id) {//թոկենի գեներացիա ըստ էլ-հասցեի, որում պահվում է նաև կոդավորված գաղտնաբառը, գաղտնաբառը պահվում է "password" բանալիով
         Map<String, Object> claims = new HashMap<>();
         claims.put("password",password);
         claims.put("id",id);

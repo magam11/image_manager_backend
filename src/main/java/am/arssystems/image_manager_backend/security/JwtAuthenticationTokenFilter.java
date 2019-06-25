@@ -49,7 +49,7 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
                 response.sendError(401,"Unauthorized");
                 return;
             }
-            String id = (String) jwtTokenUtil.getAllClaimsFromToken(authToken).get("id");
+            Integer id = (Integer) jwtTokenUtil.getAllClaimsFromToken(authToken).get("id");
             currentUser = userRepository.findAllById(id);
             if (currentUser == null) {//երբ տվյալ օգտատերը արդեն ամբողջությամբ ջնջվել է մեր համակարգից՝ ջնջվել է ՏԲ-ից։
 //                response.setStatus(102, "Դուք ջնջվել եք մեր համակարգից, խնդրում ենք նորից գրանցվել");
@@ -77,10 +77,10 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
         if (currentUser != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             String usernamelowercase = currentUser.getPhoneNumber();
             UserDetails userDetails = this.userDetailsService.loadUserByUsername(usernamelowercase);
-            String tokenId = (String) jwtTokenUtil.getAllClaimsFromToken(authToken).get("id");
+            int tokenId = (int) jwtTokenUtil.getAllClaimsFromToken(authToken).get("id");
             if (currentUserPhoneNumber != null && jwtTokenUtil.validateToken(authToken, userDetails.getUsername().trim()) &&
                     userDetails.getPassword().equals(jwtTokenUtil.getAllClaimsFromToken(authToken).get("password")) &&
-                    currentUser.getId().equals(tokenId ) && currentUser.getPhoneNumber().equals(currentUserPhoneNumber)) {
+                    currentUser.getId()==tokenId  && currentUser.getPhoneNumber().equals(currentUserPhoneNumber)) {
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authentication);

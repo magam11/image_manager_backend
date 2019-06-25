@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.Set;
 
 @Entity
 @Data
@@ -17,7 +18,8 @@ import javax.persistence.*;
 public class User {
     @Id
     @Column
-    private String id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int id;
     @Column
     private String name;
     @Column(name = "phone_number")
@@ -26,4 +28,6 @@ public class User {
     private String password;
     @Column(name = "register_activation_key")
     private String registerActivationKey;
+    @OneToMany(fetch = FetchType.LAZY,mappedBy = "user")
+    private Set<UserImage>  userImages;
 }

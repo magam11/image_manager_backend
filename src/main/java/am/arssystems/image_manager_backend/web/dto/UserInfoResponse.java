@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Data
 @Builder
 public class UserInfoResponse {
-    private String userId;
+    private int userId;
     private String phoneNumber;
     private String userName;
 }
