@@ -11,13 +11,10 @@ import am.arssystems.image_manager_backend.service.UserService;
 import am.arssystems.image_manager_backend.twilio.TwilioUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Random;
-import java.util.UUID;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -26,7 +23,7 @@ public class UserServiceImpl implements UserService {
     private UserImageRepository userImageRepository;
     private TwilioUtil twilioUtil;
     private JwtTokenUtil jwtTokenUtil;
-    private static final int preSize = 15;
+    private static final int preSize = 50;
     @Value("${count.limit}")
     private int limitCountofImage;
 
@@ -80,12 +77,13 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserData getBaseUserData(User user, int pageNumber) {
-        List<UserImage> resultPage = userImageRepository.findAllByUser(user.getId(),(pageNumber-1)*preSize,preSize);
+        System.out.println("pagNumber "+pageNumber);
+        List<UserImage> resultPage = userImageRepository.findAllByUser(user.getId(),(pageNumber-1)*50,50);
         return UserData.builder()
                 .phoneNumber(user.getPhoneNumber())
                 .picturesData(resultPage)
-                .totoalPageCount(getTotalPageCount(userImageRepository.countAllByUserAndAndDeletedAtIsNull(user),preSize))
-                .fruction(userImageRepository.countAllByUserAndAndDeletedAtIsNull(user) + "/" + limitCountofImage)
+                .totoalPageCount(getTotalPageCount(userImageRepository.countAllByUserAndDeletedAtIsNull(user),preSize))
+                .fruction(userImageRepository.countAllByUserAndDeletedAtIsNull(user) + "/" + limitCountofImage)
                 .build();
 
     }

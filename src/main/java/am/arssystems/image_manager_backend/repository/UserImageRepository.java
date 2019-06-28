@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collection;
 import java.util.List;
 
 public interface UserImageRepository extends JpaRepository<UserImage, Integer> {
@@ -23,7 +24,7 @@ public interface UserImageRepository extends JpaRepository<UserImage, Integer> {
 
     int countAllByUser(User user);
 
-    int countAllByUserAndAndDeletedAtIsNull(User user);
+    int countAllByUserAndDeletedAtIsNull(User user);
 
     @Query(value = "select ui from UserImage  ui where ui.user=:user")
     List<UserImage> getAllByUser(@Param("user") User user);
@@ -57,4 +58,9 @@ public interface UserImageRepository extends JpaRepository<UserImage, Integer> {
     Page<UserImage> getUserImageByNextImageName(@Param("picName") String picName,
                                                 @Param("user") User user,
                                                 Pageable pageable);
+    @Transactional
+    @Modifying
+    @Query(value = "update UserImage u set u.deletedAt=current_timestamp where u.user=:user and u.picName in (:picNames)")
+    void updateImageStatusInBatch(@Param("picNames") Collection<String> picNames,
+                                  @Param("user") User user);
 }

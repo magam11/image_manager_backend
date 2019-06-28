@@ -1,14 +1,17 @@
 package am.arssystems.image_manager_backend.controller;
 
+import am.arssystems.image_manager_backend.dto.request.ImageData;
 import am.arssystems.image_manager_backend.dto.request.ImageManagerRequest;
 import am.arssystems.image_manager_backend.dto.response.ListOfPickNames;
 import am.arssystems.image_manager_backend.dto.response.NextPreviousImageResponse;
+import am.arssystems.image_manager_backend.dto.response.UserData;
 import am.arssystems.image_manager_backend.entity.User;
 import am.arssystems.image_manager_backend.entity.UserImage;
 import am.arssystems.image_manager_backend.entity.View;
 import am.arssystems.image_manager_backend.repository.UserImageRepository;
 import am.arssystems.image_manager_backend.security.CurrentUser;
 import am.arssystems.image_manager_backend.service.ImageService;
+import am.arssystems.image_manager_backend.service.UserService;
 import com.fasterxml.jackson.annotation.JsonView;
 import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +25,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -46,13 +50,15 @@ public class UserImageController {
 
     private UserImageRepository userImageRepository;
     private ImageService imageService;
+    private UserService userService;
     private SimpleDateFormat dateFormat = new SimpleDateFormat();
 
     @Autowired
     public UserImageController(UserImageRepository userImageRepository,
-                               ImageService imageService) {
+                               ImageService imageService, UserService userService) {
         this.imageService = imageService;
         this.userImageRepository = userImageRepository;
+        this.userService = userService;
     }
 
 
@@ -168,5 +174,19 @@ public class UserImageController {
         return ResponseEntity.ok(NextPreviousImageResponse.builder()
                 .picturesData(twoPreviousImageByPictureName)
                 .build());
+    }
+
+    @PutMapping("/many")
+    @PreAuthorize("hasAuthority('user')")
+    @JsonView(View.Base.class)
+    public ResponseEntity updateImageStatusInBatch(@RequestBody @Valid ImageData imageData,
+                                                   @AuthenticationPrincipal CurrentUser currentUser){
+        imageService.updateImageStatus(imageData,currentUser.getUser());
+        UserData response =  userService.getBaseUserData(currentUser.getUser(),imageData.getPage());
+        if(imageData.getPage()>1 && (response.getPicturesData()==null || response.getPicturesData().size()==0)){
+            response = userService.getBaseUserData(currentUser.getUser(),imageData.getPage()-1);
+        }
+        return ResponseEntity.ok(response);
+
     }
 }

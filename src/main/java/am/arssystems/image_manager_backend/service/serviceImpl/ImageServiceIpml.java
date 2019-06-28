@@ -1,5 +1,6 @@
 package am.arssystems.image_manager_backend.service.serviceImpl;
 
+import am.arssystems.image_manager_backend.dto.request.ImageData;
 import am.arssystems.image_manager_backend.entity.User;
 import am.arssystems.image_manager_backend.entity.UserImage;
 import am.arssystems.image_manager_backend.repository.UserImageRepository;
@@ -61,5 +62,12 @@ public class ImageServiceIpml implements ImageService {
     @Override
     public List<UserImage> getTwoPreviousImageByPictureName(String picName, User user) {
         return  userImageRepository.getUserImageByNextImageName(picName, user, PageRequest.of(0,2)).getContent();
+    }
+
+    @Override
+    public void updateImageStatus(ImageData imageData, User user) {
+        if(!imageData.isImageStatus()){
+            userImageRepository.updateImageStatusInBatch(imageData.getPicNames(), user);
+        }
     }
 }
