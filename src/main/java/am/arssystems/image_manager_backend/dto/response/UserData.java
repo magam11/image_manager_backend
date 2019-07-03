@@ -23,8 +23,8 @@ public class UserData {
     private String fruction;
     @JsonView(View.Base.class)
     private int totoalPageCount;
-    @JsonView(View.Extra.class)
-    private List<String> deletedImageNames;
+//    @JsonView(View.Extra.class)
+//    private List<String> deletedImageNames;
     @JsonView(View.Base.class)
     private String phoneNumber;
 

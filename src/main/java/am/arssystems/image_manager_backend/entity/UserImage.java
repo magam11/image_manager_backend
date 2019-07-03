@@ -33,6 +33,7 @@ public class UserImage {
     @JsonView(View.Base.class)
     private Timestamp createdAt;
     @Column(name = "deleted_at")
+    @JsonView(View.Base.class)
     private Date deletedAt;
 
 

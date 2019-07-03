@@ -63,4 +63,41 @@ public interface UserImageRepository extends JpaRepository<UserImage, Integer> {
     @Query(value = "update UserImage u set u.deletedAt=current_timestamp where u.user=:user and u.picName in (:picNames)")
     void updateImageStatusInBatch(@Param("picNames") Collection<String> picNames,
                                   @Param("user") User user);
+
+    @Query(value = "select ui.* from user_image ui where ui.user_id=:userId and ui.created_at<=:toDate limit :page, :itemsSize", nativeQuery = true)
+    List<UserImage> getByUserAndCreatedAtLessThan(@Param("userId") int id,
+                                                  @Param("toDate") String toDate,
+                                                  @Param("page") int page,
+                                                  @Param("itemsSize")int itemsSize);
+
+    @Query(value = "select count(ui.pic_name) from user_image ui where ui.user_id=:currentUserId and ui.created_at<=:toDate", nativeQuery = true)
+    int countAllByUserIdAndCreatedAtLessThan(@Param("currentUserId") int id,
+                                             @Param("toDate") String toDate);
+
+    @Query(value = "select ui.* from user_image ui where ui.user_id=:userId and ui.created_at>=:fromDate limit :page, :itemsSize", nativeQuery = true)
+    List<UserImage> getByUserAndCreatedAtGreaterThan(@Param("userId") int currentUserId,
+                                                     @Param("fromDate") String fromDate,
+                                                     @Param("page") int page,
+                                                     @Param("itemsSize") int itemsSize);
+
+    @Query(value = "select count(ui.pic_name) from user_image ui where ui.user_id=:currentUserId and ui.created_at>=:fromDate", nativeQuery = true)
+    int countAllByUserIdAndCreatedAtGreaterThan(@Param("currentUserId") int id,
+                                                @Param("fromDate") String fromDate);
+
+    @Query(value = "select ui.* from user_image ui where ui.user_id=:currentUserId and ui.created_at>=:fromDate and " +
+            "ui.created_at<=:toDate limit :page, :itemsSize", nativeQuery = true)
+    List<UserImage> getByUserAndCreatedAtGreaterThanAndLessThan(@Param("currentUserId") int id,
+                                                                @Param("fromDate") String fromDate,
+                                                                @Param("toDate") String toDate,
+                                                                @Param("page") int page,
+                                                                @Param("itemsSize") int itemsSize);
+    @Query(value = "select count(ui.pic_name) from user_image ui where ui.user_id=:currentUserId and ui.created_at>=:fromDate" +
+            " and ui.created_at<=:toDate", nativeQuery = true)
+    int countAllByUserIdAndCreatedAtGreaterThanAndLessThan(@Param("currentUserId") int id,
+                                                           @Param("toDate") String toDate,
+                                                           @Param("fromDate") String fromDate);
+
+    @Query(value = "select ui from UserImage ui where  ui.user=:currentUser and ui.deletedAt is not null")
+    Page<UserImage> findAllByUserAndCreatedAtIsNotNull(@Param("currentUser") User user, Pageable pageable);
+
 }

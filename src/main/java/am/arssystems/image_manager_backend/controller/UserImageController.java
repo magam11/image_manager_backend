@@ -169,7 +169,7 @@ public class UserImageController {
     @JsonView(View.Base.class)
     @PreAuthorize("hasAuthority('user')")
     public ResponseEntity getPreviousImageData(@RequestParam(name = "picName") String picName,
-                                           @AuthenticationPrincipal CurrentUser currentUser) {
+                                               @AuthenticationPrincipal CurrentUser currentUser) {
         List<UserImage> twoPreviousImageByPictureName = imageService.getTwoPreviousImageByPictureName(picName, currentUser.getUser());
         return ResponseEntity.ok(NextPreviousImageResponse.builder()
                 .picturesData(twoPreviousImageByPictureName)
@@ -180,12 +180,33 @@ public class UserImageController {
     @PreAuthorize("hasAuthority('user')")
     @JsonView(View.Base.class)
     public ResponseEntity updateImageStatusInBatch(@RequestBody @Valid ImageData imageData,
-                                                   @AuthenticationPrincipal CurrentUser currentUser){
-        imageService.updateImageStatus(imageData,currentUser.getUser());
-        UserData response =  userService.getBaseUserData(currentUser.getUser(),imageData.getPage());
-        if(imageData.getPage()>1 && (response.getPicturesData()==null || response.getPicturesData().size()==0)){
-            response = userService.getBaseUserData(currentUser.getUser(),imageData.getPage()-1);
+                                                   @AuthenticationPrincipal CurrentUser currentUser) {
+        imageService.updateImageStatus(imageData, currentUser.getUser());
+        UserData response = userService.getBaseUserData(currentUser.getUser(), imageData.getPage());
+        if (imageData.getPage() > 1 && (response.getPicturesData() == null || response.getPicturesData().size() == 0)) {
+            response = userService.getBaseUserData(currentUser.getUser(), imageData.getPage() - 1);
         }
+        return ResponseEntity.ok(response);
+
+    }
+
+    @GetMapping("/page/{pageNumber}")
+    @PreAuthorize("hasAuthority('user')")
+    @JsonView(View.Base.class)
+    public ResponseEntity getImagesByFromAndTo(@AuthenticationPrincipal CurrentUser currentUser,
+                                               @PathVariable("pageNumber") int page,
+                                               @RequestParam(name = "fromDate") String fromDate,
+                                               @RequestParam(name = "toDate") String toDate) {
+        UserData response = imageService.getImagesBeetweenInDate(currentUser.getUser(), fromDate, toDate, page);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/deleted/page/{page}")
+    @JsonView(View.Base.class)
+    @PreAuthorize("hasAuthority('user')")
+    public ResponseEntity getDeletedImageData(@AuthenticationPrincipal CurrentUser currentUser,
+                                              @PathVariable("page")int page){
+        UserData response = imageService.getDeletedImageData(currentUser.getUser(),page);
         return ResponseEntity.ok(response);
 
     }
