@@ -97,7 +97,12 @@ public interface UserImageRepository extends JpaRepository<UserImage, Integer> {
                                                            @Param("toDate") String toDate,
                                                            @Param("fromDate") String fromDate);
 
-    @Query(value = "select ui from UserImage ui where  ui.user=:currentUser and ui.deletedAt is not null")
-    Page<UserImage> findAllByUserAndCreatedAtIsNotNull(@Param("currentUser") User user, Pageable pageable);
+    @Query(value = "select ui.* from user_image ui where  ui.user_id=:currentUserId and ui.deleted_at is not null limit :page, :itemsSize", nativeQuery = true)
+    List<UserImage> findAllByUserAndCreatedAtIsNotNull(@Param("currentUserId") int userId,
+                                                       @Param("page") int page,
+                                                       @Param("itemsSize") int itemsSize);
+
+    int countAllByUserAndDeletedAtIsNotNull(User user);
+
 
 }

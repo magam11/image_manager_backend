@@ -9,7 +9,6 @@ import am.arssystems.image_manager_backend.repository.UserRepository;
 import am.arssystems.image_manager_backend.service.ImageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
@@ -109,10 +108,12 @@ public class ImageServiceIpml implements ImageService {
 
     @Override
     public UserData getDeletedImageData(User user, int page) {
-        Page<UserImage> data = userImageRepository.findAllByUserAndCreatedAtIsNotNull(user, PageRequest.of(page - 1, limitCountofImage));
+        List<UserImage> data = userImageRepository.findAllByUserAndCreatedAtIsNotNull(user.getId(), (page-1)*50,50);
+        int totoalCount = userImageRepository.countAllByUserAndDeletedAtIsNotNull(user);
         return UserData.builder()
-                .totoalPageCount(data.getTotalPages())
-                .picturesData(data.getContent())
+                .totalElementCount(totoalCount)
+                .totoalPageCount(totoalCount%50>0?totoalCount/50+1:totoalCount/50)
+                .picturesData(data)
                 .build();
     }
 }

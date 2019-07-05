@@ -78,9 +78,10 @@ public class UserImageController {
         double picSizeByPicName = userImageRepository.getPicSizeByPicName(pickName);
         response.setHeader("pictureSize", picSizeByPicName + "");
         InputStream in = null;
+        String userForlderIndex = pickName.split("_")[0];
         try {
 
-            in = new FileInputStream(imagesDereqtion + pickName);
+            in = new FileInputStream(imagesDereqtion +userForlderIndex+"\\"+ pickName);
             response.setContentType(MediaType.IMAGE_JPEG_VALUE);
             IOUtils.copy(in, response.getOutputStream());
 
@@ -92,17 +93,17 @@ public class UserImageController {
         }
     }
 
-    @PostMapping("/deleteImage") //for desktop
+    @DeleteMapping("/picture/{pickName}") //for desktop
     public ResponseEntity deleteImage(@AuthenticationPrincipal CurrentUser currentUser,
-                                      @RequestParam(name = "picName") String pickName) {
+                                      @PathVariable(name = "pickName") String pickName) {
         User user = currentUser.getUser();
         UserImage userImage = userImageRepository.findAllByUserAndAndPicName(user, pickName);
         userImageRepository.delete(userImage);
         ResponseEntity.status(HttpStatus.NO_CONTENT);
-        File image = new File(imagesDereqtion + pickName);
+        File image = new File(imagesDereqtion +user.getId()+"\\"+ pickName);
         boolean delete = image.delete();
         Map<String, Object> resalt = new HashMap<>();
-        resalt.put("success", true);
+        resalt.put("success", delete);
         resalt.put("message", "DELETED");
         return ResponseEntity.ok(resalt);
     }
@@ -116,8 +117,12 @@ public class UserImageController {
         User user = currentUser.getUser();
         int count = userImageRepository.countAllByUser(user);
         if (count < Integer.parseInt(limit)) {
-            String filename = System.currentTimeMillis() + "_" + multipartFile.getOriginalFilename();
-            File image = new File(imagesDereqtion + filename);
+            String filename = user.getId()+"_"+System.currentTimeMillis() + "_" + multipartFile.getOriginalFilename();
+            File userImageFolder = new File(imagesDereqtion + user.getId());
+            if (!userImageFolder.exists()) {
+                userImageFolder.mkdirs();
+            }
+            File image = new File(imagesDereqtion + user.getId() + "\\" + filename);
             multipartFile.transferTo(image);
             result.put("success", true);
             double imageFileSize = imageService.getImageFileSize(image);
@@ -183,7 +188,7 @@ public class UserImageController {
                                                    @AuthenticationPrincipal CurrentUser currentUser) {
         imageService.updateImageStatus(imageData, currentUser.getUser());
         UserData response = userService.getBaseUserData(currentUser.getUser(), imageData.getPage());
-        if (imageData.getPage() > 1 && (response.getPicturesData() == null || response.getPicturesData().size() == 0)) {
+        if (response.getTotoalPageCount()>=1 && imageData.getPage() > 1 && (response.getPicturesData() == null || response.getPicturesData().size() == 0)) {
             response = userService.getBaseUserData(currentUser.getUser(), imageData.getPage() - 1);
         }
         return ResponseEntity.ok(response);
@@ -205,8 +210,11 @@ public class UserImageController {
     @JsonView(View.Base.class)
     @PreAuthorize("hasAuthority('user')")
     public ResponseEntity getDeletedImageData(@AuthenticationPrincipal CurrentUser currentUser,
-                                              @PathVariable("page")int page){
-        UserData response = imageService.getDeletedImageData(currentUser.getUser(),page);
+                                              @PathVariable("page") int page) {
+        UserData response = imageService.getDeletedImageData(currentUser.getUser(), page);
+        if(page>1&& response.getTotoalPageCount()>=1 && (response.getPicturesData()==null ||response.getPicturesData().size()==0)){
+            response = imageService.getDeletedImageData(currentUser.getUser(),--page);
+        }
         return ResponseEntity.ok(response);
 
     }
