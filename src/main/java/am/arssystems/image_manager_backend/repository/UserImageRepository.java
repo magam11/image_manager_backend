@@ -46,6 +46,12 @@ public interface UserImageRepository extends JpaRepository<UserImage, Integer> {
     void setUserImageDeletedAtNulByUserAndPicName(@Param("user") User currentUser,
                                                   @Param("picName") String picName);
 
+    @Modifying
+    @Transactional
+    @Query(value = "delete from UserImage u  where u.user=:user and u.picName in :picNames")
+    void deleteInBatch(@Param("user") User currentUser,
+                       @Param("picNames")Collection<String> picNames);
+
     @Query(value = "select ui from UserImage  ui where ui.user=:user and ui.deletedAt is null and " +
             "ui.createdAt > (select u.createdAt from UserImage  u where u.picName=:picName)")
     Page<UserImage> getUserImageByPreviusImageName(@Param("picName") String picName,
@@ -58,17 +64,25 @@ public interface UserImageRepository extends JpaRepository<UserImage, Integer> {
     Page<UserImage> getUserImageByNextImageName(@Param("picName") String picName,
                                                 @Param("user") User user,
                                                 Pageable pageable);
+
     @Transactional
     @Modifying
     @Query(value = "update UserImage u set u.deletedAt=current_timestamp where u.user=:user and u.picName in (:picNames)")
     void updateImageStatusInBatch(@Param("picNames") Collection<String> picNames,
                                   @Param("user") User user);
 
+    @Transactional
+    @Modifying
+    @Query(value = "update UserImage u set u.deletedAt=null where u.user=:user and u.picName in (:picNames)")
+    void recoverImageInBatch(@Param("picNames") Collection<String> picNames,
+                             @Param("user") User user);
+
+
     @Query(value = "select ui.* from user_image ui where ui.user_id=:userId and ui.created_at<=:toDate limit :page, :itemsSize", nativeQuery = true)
     List<UserImage> getByUserAndCreatedAtLessThan(@Param("userId") int id,
                                                   @Param("toDate") String toDate,
                                                   @Param("page") int page,
-                                                  @Param("itemsSize")int itemsSize);
+                                                  @Param("itemsSize") int itemsSize);
 
     @Query(value = "select count(ui.pic_name) from user_image ui where ui.user_id=:currentUserId and ui.created_at<=:toDate", nativeQuery = true)
     int countAllByUserIdAndCreatedAtLessThan(@Param("currentUserId") int id,
@@ -91,6 +105,7 @@ public interface UserImageRepository extends JpaRepository<UserImage, Integer> {
                                                                 @Param("toDate") String toDate,
                                                                 @Param("page") int page,
                                                                 @Param("itemsSize") int itemsSize);
+
     @Query(value = "select count(ui.pic_name) from user_image ui where ui.user_id=:currentUserId and ui.created_at>=:fromDate" +
             " and ui.created_at<=:toDate", nativeQuery = true)
     int countAllByUserIdAndCreatedAtGreaterThanAndLessThan(@Param("currentUserId") int id,
@@ -104,5 +119,14 @@ public interface UserImageRepository extends JpaRepository<UserImage, Integer> {
 
     int countAllByUserAndDeletedAtIsNotNull(User user);
 
-
+    @Query(value = "select ui.* from user_image ui where ui.user_id=:currentUserId and" +
+            " ui.created_at like concat(:dateData,'%') and ui.deleted_at is null limit :page,:itemSize", nativeQuery = true)
+    List<UserImage> getPicNamesByUserAndByCreatedAt(@Param("page") int page,
+                                                 @Param("currentUserId") int userId,
+                                                 @Param("dateData") String date,
+                                                 @Param("itemSize") int itemSize);
+    @Query(value = "select count(ui.pic_name )from user_image ui where ui.user_id=:currentUserId and" +
+            " ui.created_at like concat(:dateData,'%') and ui.deleted_at is null", nativeQuery = true)
+    int countByUserAndCreatedAtLike(@Param("currentUserId") int userId ,
+                                    @Param("dateData") String date);
 }

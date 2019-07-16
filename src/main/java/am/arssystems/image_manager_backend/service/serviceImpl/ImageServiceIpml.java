@@ -17,6 +17,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 @Service
@@ -27,6 +28,9 @@ public class ImageServiceIpml implements ImageService {
 
     @Value("${count.limit}")
     private int limitCountofImage;
+
+    @Value("${image.folder}")
+    private String uploadImagePath;
 
     @Autowired
     public ImageServiceIpml(UserImageRepository userImageRepository, UserRepository userRepository) {
@@ -88,17 +92,17 @@ public class ImageServiceIpml implements ImageService {
             picturesData = userImageRepository.getByUserAndCreatedAtLessThan(currentUser.getId(), toDate, (page - 1) * 50, 50);
             totalElementCount = userImageRepository.countAllByUserIdAndCreatedAtLessThan(currentUser.getId(), toDate);
         } else if (toDate == null || toDate.isEmpty()) { //get by fromDate
-            picturesData = userImageRepository.getByUserAndCreatedAtGreaterThan(currentUser.getId(), fromDate,(page-1)*50,50);
+            picturesData = userImageRepository.getByUserAndCreatedAtGreaterThan(currentUser.getId(), fromDate, (page - 1) * 50, 50);
             totalElementCount = userImageRepository.countAllByUserIdAndCreatedAtGreaterThan(currentUser.getId(), fromDate);
         } else { //get by fromDate and toDate
-            picturesData = userImageRepository.getByUserAndCreatedAtGreaterThanAndLessThan(currentUser.getId(), fromDate,toDate,(page-1)*50,50);
-            totalElementCount = userImageRepository.countAllByUserIdAndCreatedAtGreaterThanAndLessThan(currentUser.getId(),toDate, fromDate);
+            picturesData = userImageRepository.getByUserAndCreatedAtGreaterThanAndLessThan(currentUser.getId(), fromDate, toDate, (page - 1) * 50, 50);
+            totalElementCount = userImageRepository.countAllByUserIdAndCreatedAtGreaterThanAndLessThan(currentUser.getId(), toDate, fromDate);
         }
         int totalPageCount = 1;
-        if(totalElementCount%50>0)
-            totalPageCount = totalElementCount/50+1;
+        if (totalElementCount % 50 > 0)
+            totalPageCount = totalElementCount / 50 + 1;
         else
-            totalPageCount=totalElementCount/50;
+            totalPageCount = totalElementCount / 50;
         result.setPicturesData(picturesData);
         result.setTotoalPageCount(totalPageCount);
         result.setFruction(userImageRepository.countAllByUserAndDeletedAtIsNull(currentUser) + "/" + limitCountofImage);
@@ -108,12 +112,58 @@ public class ImageServiceIpml implements ImageService {
 
     @Override
     public UserData getDeletedImageData(User user, int page) {
-        List<UserImage> data = userImageRepository.findAllByUserAndCreatedAtIsNotNull(user.getId(), (page-1)*50,50);
+        List<UserImage> data = userImageRepository.findAllByUserAndCreatedAtIsNotNull(user.getId(), (page - 1) * 50, 50);
         int totoalCount = userImageRepository.countAllByUserAndDeletedAtIsNotNull(user);
+        System.out.println("totalElementCount " + totoalCount);
         return UserData.builder()
                 .totalElementCount(totoalCount)
-                .totoalPageCount(totoalCount%50>0?totoalCount/50+1:totoalCount/50)
+                .totoalPageCount(totoalCount % 50 > 0 ? totoalCount / 50 + 1 : totoalCount / 50)
                 .picturesData(data)
                 .build();
     }
+
+    @Override
+    public void recoveerImagesInBatch(User user, ImageData imageData) {
+        userImageRepository.recoverImageInBatch(imageData.getPicNames(), user);
+    }
+
+    @Override
+    public void deleteImages(User user, Collection<String> picNames) {
+        for (String picName : picNames) {
+            new File(uploadImagePath + user.getId() + "\\" + picName).delete();
+        }
+        userImageRepository.deleteInBatch(user, picNames);
+    }
+
+    @Override
+    public UserData getPictureDataByYearAndMonth(int page, User user, String year, String month) {
+        List<UserImage> picturesData;
+        int totalPageCount = 1;
+        int totalElementsCount;
+        if (month.equals("ALL")) {
+            picturesData = userImageRepository.getPicNamesByUserAndByCreatedAt(page, user.getId(), year, 50);
+            totalElementsCount = userImageRepository.countByUserAndCreatedAtLike(user.getId(), year);
+        } else {
+            picturesData = userImageRepository.getPicNamesByUserAndByCreatedAt(page, user.getId(), year+"-"+month, 50);
+            totalElementsCount = userImageRepository.countByUserAndCreatedAtLike(user.getId(), year+"-"+month);
+        }
+        totalPageCount = getTotalPagesCountByAllElementsCount(totalElementsCount);
+
+
+        return UserData.builder()
+                .totoalPageCount(totalPageCount)
+                .picturesData(picturesData)
+                .build();
+    }
+
+
+    private int getTotalPagesCountByAllElementsCount(int totalElemnetsCount) {
+        int pageCount = 1;
+        if (totalElemnetsCount > 50) {
+            pageCount = totalElemnetsCount % 50 == 0 ? totalElemnetsCount / 50 : totalElemnetsCount / 50 + 1;
+        }
+        return pageCount;
+    }
+
+
 }

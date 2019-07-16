@@ -22,6 +22,7 @@ import java.util.Date;
 @Table(name = "user_image")
 public class UserImage {
 
+
     @Id
     @Column(name = "pic_name")
     @JsonView(View.Base.class)

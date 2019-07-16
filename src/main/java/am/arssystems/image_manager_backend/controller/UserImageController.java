@@ -26,6 +26,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -70,6 +71,8 @@ public class UserImageController {
                 .pickNames(pickNames)
                 .build());
     }
+
+
 
 
     @RequestMapping(value = "/{pickName}", method = RequestMethod.GET) //for desktop
@@ -216,6 +219,48 @@ public class UserImageController {
             response = imageService.getDeletedImageData(currentUser.getUser(),--page);
         }
         return ResponseEntity.ok(response);
-
     }
+
+
+
+    @PutMapping("/recoverMany")
+    @PreAuthorize("hasAuthority('user')")
+    @JsonView(View.Base.class)
+    public ResponseEntity deleteInBatch(@RequestBody ImageData imageData,
+                                        @AuthenticationPrincipal CurrentUser currentUser){
+        imageService.recoveerImagesInBatch(currentUser.getUser(), imageData);
+        @NotNull int page = imageData.getPage();
+        UserData response = imageService.getDeletedImageData(currentUser.getUser(),  imageData.getPage());
+        if(imageData.getPage()>1 && response.getTotoalPageCount()>=1 && (response.getPicturesData()==null ||response.getPicturesData().size()==0)){
+            response = imageService.getDeletedImageData(currentUser.getUser(),--page);
+        }
+        return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping("/many")
+    @PreAuthorize("hasAuthority('user')")
+    @JsonView(View.Base.class)
+    public ResponseEntity deleteImagesInBatch(@RequestBody ImageData imageData,
+                                              @AuthenticationPrincipal CurrentUser currentUser){
+        imageService.deleteImages(currentUser.getUser(),imageData.getPicNames());
+        @NotNull int page = imageData.getPage();
+        UserData response = imageService.getDeletedImageData(currentUser.getUser(),  imageData.getPage());
+        if(response.getTotoalPageCount()>=1 && imageData.getPage()>1 && (response.getPicturesData()==null ||response.getPicturesData().size()==0)){
+            response = imageService.getDeletedImageData(currentUser.getUser(),--page);
+        }
+        return ResponseEntity.ok(response);
+    }
+
+
+    @GetMapping("/filter/page/{page}")
+    @PreAuthorize("hasAuthority('user')")
+    @JsonView(View.Base.class)
+    public ResponseEntity filterByYearAndMoth(@AuthenticationPrincipal CurrentUser currentUser,
+                                              @PathVariable("page")int page,
+                                              @RequestParam(name = "year")String year,
+                                              @RequestParam(name = "month")String month){
+       UserData response = imageService.getPictureDataByYearAndMonth((page-1)*50,currentUser.getUser(),year,month);
+       return ResponseEntity.ok(response);
+    }
+
 }

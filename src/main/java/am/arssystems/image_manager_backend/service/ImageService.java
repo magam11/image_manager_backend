@@ -7,6 +7,7 @@ import am.arssystems.image_manager_backend.entity.UserImage;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.List;
 
 public interface ImageService {
@@ -24,4 +25,11 @@ public interface ImageService {
     UserData getImagesBeetweenInDate(User currentUser,String fromDate, String toDate, int page);
 
     UserData getDeletedImageData(User user, int page);
+
+    void recoveerImagesInBatch(User user, ImageData imageData);
+
+    void deleteImages(User user, Collection<String> picNames);
+
+    UserData getPictureDataByYearAndMonth(int page,User user, String year, String month);
+
 }
