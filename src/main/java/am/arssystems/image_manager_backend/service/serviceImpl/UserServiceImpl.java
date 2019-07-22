@@ -83,7 +83,7 @@ public class UserServiceImpl implements UserService {
                 .phoneNumber(user.getPhoneNumber())
                 .picturesData(resultPage)
                 .totoalPageCount(getTotalPageCount(userImageRepository.countAllByUserAndDeletedAtIsNull(user),preSize))
-                .fruction(userImageRepository.countAllByUserAndDeletedAtIsNull(user) + "/" + limitCountofImage)
+                .fruction(userImageRepository.countAllByUser(user) + "/" + limitCountofImage)
                 .build();
 
     }

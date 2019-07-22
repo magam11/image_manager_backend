@@ -63,7 +63,6 @@ public class UserController {
     public ResponseEntity getUserData(@AuthenticationPrincipal CurrentUser currentUser,
                                       @PathVariable("pageNumber")int pageNumber){
        UserData response =  userService.getBaseUserData(currentUser.getUser(),pageNumber);
-        System.out.println("----------- "+response.getPicturesData().size());
        return ResponseEntity.ok(response);
 
     }
