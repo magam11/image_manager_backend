@@ -14,7 +14,7 @@ public interface UserService {
 
     void setUserPasswordRandomActivationKeyAndSendSMS(User user);
 
-    UserData getBaseUserData(User user, int pageIndex);
+    UserData getBaseUserData(User user, int pageIndex,int perPage);
 
     int getTotalPageCount(int allCount, int preSize);
 }

@@ -188,11 +188,12 @@ public class UserImageController {
     @PreAuthorize("hasAuthority('user')")
     @JsonView(View.Base.class)
     public ResponseEntity updateImageStatusInBatch(@RequestBody @Valid ImageData imageData,
-                                                   @AuthenticationPrincipal CurrentUser currentUser) {
+                                                   @AuthenticationPrincipal CurrentUser currentUser,
+                                                   @RequestParam(name = "perPage",defaultValue = "50",required = false)int perPage) {
         imageService.updateImageStatus(imageData, currentUser.getUser());
-        UserData response = userService.getBaseUserData(currentUser.getUser(), imageData.getPage());
+        UserData response = userService.getBaseUserData(currentUser.getUser(), imageData.getPage(),perPage);
         if (response.getTotoalPageCount()>=1 && imageData.getPage() > 1 && (response.getPicturesData() == null || response.getPicturesData().size() == 0)) {
-            response = userService.getBaseUserData(currentUser.getUser(), imageData.getPage() - 1);
+            response = userService.getBaseUserData(currentUser.getUser(), imageData.getPage() - 1,perPage);
         }
         return ResponseEntity.ok(response);
 
@@ -204,8 +205,9 @@ public class UserImageController {
     public ResponseEntity getImagesByFromAndTo(@AuthenticationPrincipal CurrentUser currentUser,
                                                @PathVariable("pageNumber") int page,
                                                @RequestParam(name = "fromDate") String fromDate,
-                                               @RequestParam(name = "toDate") String toDate) {
-        UserData response = imageService.getImagesBeetweenInDate(currentUser.getUser(), fromDate, toDate, page);
+                                               @RequestParam(name = "toDate") String toDate,
+                                               @RequestParam(name = "perPage",defaultValue = "50",required = false)int perPage) {
+        UserData response = imageService.getImagesBeetweenInDate(currentUser.getUser(), fromDate, toDate, page, perPage);
         return ResponseEntity.ok(response);
     }
 
@@ -213,10 +215,11 @@ public class UserImageController {
     @JsonView(View.Base.class)
     @PreAuthorize("hasAuthority('user')")
     public ResponseEntity getDeletedImageData(@AuthenticationPrincipal CurrentUser currentUser,
-                                              @PathVariable("page") int page) {
-        UserData response = imageService.getDeletedImageData(currentUser.getUser(), page);
+                                              @PathVariable("page") int page,
+                                              @RequestParam(name = "perPage", required = false, defaultValue = "50")int perPage) {
+        UserData response = imageService.getDeletedImageData(currentUser.getUser(), page, perPage);
         if(page>1&& response.getTotoalPageCount()>=1 && (response.getPicturesData()==null ||response.getPicturesData().size()==0)){
-            response = imageService.getDeletedImageData(currentUser.getUser(),--page);
+            response = imageService.getDeletedImageData(currentUser.getUser(),--page, perPage);
         }
         return ResponseEntity.ok(response);
     }
@@ -227,12 +230,13 @@ public class UserImageController {
     @PreAuthorize("hasAuthority('user')")
     @JsonView(View.Base.class)
     public ResponseEntity deleteInBatch(@RequestBody ImageData imageData,
-                                        @AuthenticationPrincipal CurrentUser currentUser){
+                                        @AuthenticationPrincipal CurrentUser currentUser,
+                                        @RequestParam(name = "perPage", required = false, defaultValue = "50")int perPage){
         imageService.recoveerImagesInBatch(currentUser.getUser(), imageData);
         @NotNull int page = imageData.getPage();
-        UserData response = imageService.getDeletedImageData(currentUser.getUser(),  imageData.getPage());
+        UserData response = imageService.getDeletedImageData(currentUser.getUser(),  imageData.getPage(),perPage);
         if(imageData.getPage()>1 && response.getTotoalPageCount()>=1 && (response.getPicturesData()==null ||response.getPicturesData().size()==0)){
-            response = imageService.getDeletedImageData(currentUser.getUser(),--page);
+            response = imageService.getDeletedImageData(currentUser.getUser(),--page,perPage);
         }
         return ResponseEntity.ok(response);
     }
@@ -241,12 +245,13 @@ public class UserImageController {
     @PreAuthorize("hasAuthority('user')")
     @JsonView(View.Base.class)
     public ResponseEntity deleteImagesInBatch(@RequestBody ImageData imageData,
-                                              @AuthenticationPrincipal CurrentUser currentUser){
+                                              @AuthenticationPrincipal CurrentUser currentUser,
+                                              @RequestParam(name = "perPage", required = false, defaultValue = "50")int perPage){
         imageService.deleteImages(currentUser.getUser(),imageData.getPicNames());
         @NotNull int page = imageData.getPage();
-        UserData response = imageService.getDeletedImageData(currentUser.getUser(),  imageData.getPage());
+        UserData response = imageService.getDeletedImageData(currentUser.getUser(),  imageData.getPage(),perPage);
         if(response.getTotoalPageCount()>=1 && imageData.getPage()>1 && (response.getPicturesData()==null ||response.getPicturesData().size()==0)){
-            response = imageService.getDeletedImageData(currentUser.getUser(),--page);
+            response = imageService.getDeletedImageData(currentUser.getUser(),--page,perPage);
         }
         return ResponseEntity.ok(response);
     }
@@ -258,8 +263,9 @@ public class UserImageController {
     public ResponseEntity filterByYearAndMoth(@AuthenticationPrincipal CurrentUser currentUser,
                                               @PathVariable("page")int page,
                                               @RequestParam(name = "year")String year,
-                                              @RequestParam(name = "month")String month){
-       UserData response = imageService.getPictureDataByYearAndMonth((page-1)*50,currentUser.getUser(),year,month);
+                                              @RequestParam(name = "month")String month,
+                                              @RequestParam(name = "perPage", required = false,defaultValue = "50")int perPage){
+       UserData response = imageService.getPictureDataByYearAndMonth((page-1)*perPage,currentUser.getUser(),year,month,perPage);
        return ResponseEntity.ok(response);
     }
 

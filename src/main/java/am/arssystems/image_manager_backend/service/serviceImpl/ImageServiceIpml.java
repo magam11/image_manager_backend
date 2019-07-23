@@ -82,27 +82,27 @@ public class ImageServiceIpml implements ImageService {
     }
 
     @Override
-    public UserData getImagesBeetweenInDate(User currentUser, String fromDate, String toDate, int page) {
+    public UserData getImagesBeetweenInDate(User currentUser, String fromDate, String toDate, int page, int perPage) {
         UserData result = new UserData();
         List<UserImage> picturesData = new ArrayList<>();
         int totalElementCount = 1;
         if (fromDate == null && toDate == null) {
             result = new UserData();
         } else if (fromDate == null || fromDate.isEmpty()) { // get by toDate
-            picturesData = userImageRepository.getByUserAndCreatedAtLessThan(currentUser.getId(), toDate, (page - 1) * 50, 50);
+            picturesData = userImageRepository.getByUserAndCreatedAtLessThan(currentUser.getId(), toDate, (page - 1) * perPage, perPage);
             totalElementCount = userImageRepository.countAllByUserIdAndCreatedAtLessThan(currentUser.getId(), toDate);
         } else if (toDate == null || toDate.isEmpty()) { //get by fromDate
-            picturesData = userImageRepository.getByUserAndCreatedAtGreaterThan(currentUser.getId(), fromDate, (page - 1) * 50, 50);
+            picturesData = userImageRepository.getByUserAndCreatedAtGreaterThan(currentUser.getId(), fromDate, (page - 1) * perPage, perPage);
             totalElementCount = userImageRepository.countAllByUserIdAndCreatedAtGreaterThan(currentUser.getId(), fromDate);
         } else { //get by fromDate and toDate
-            picturesData = userImageRepository.getByUserAndCreatedAtGreaterThanAndLessThan(currentUser.getId(), fromDate, toDate, (page - 1) * 50, 50);
+            picturesData = userImageRepository.getByUserAndCreatedAtGreaterThanAndLessThan(currentUser.getId(), fromDate, toDate, (page - 1) * perPage, perPage);
             totalElementCount = userImageRepository.countAllByUserIdAndCreatedAtGreaterThanAndLessThan(currentUser.getId(), toDate, fromDate);
         }
         int totalPageCount = 1;
-        if (totalElementCount % 50 > 0)
-            totalPageCount = totalElementCount / 50 + 1;
+        if (totalElementCount % perPage > 0)
+            totalPageCount = totalElementCount / perPage + 1;
         else
-            totalPageCount = totalElementCount / 50;
+            totalPageCount = totalElementCount / perPage;
         result.setPicturesData(picturesData);
         result.setTotoalPageCount(totalPageCount);
         result.setFruction(userImageRepository.countAllByUserAndDeletedAtIsNull(currentUser) + "/" + limitCountofImage);
@@ -111,13 +111,13 @@ public class ImageServiceIpml implements ImageService {
     }
 
     @Override
-    public UserData getDeletedImageData(User user, int page) {
-        List<UserImage> data = userImageRepository.findAllByUserAndCreatedAtIsNotNull(user.getId(), (page - 1) * 50, 50);
+    public UserData getDeletedImageData(User user, int page, int perPage) {
+        List<UserImage> data = userImageRepository.findAllByUserAndCreatedAtIsNotNull(user.getId(), (page - 1) * perPage, perPage);
         int totoalCount = userImageRepository.countAllByUserAndDeletedAtIsNotNull(user);
         System.out.println("totalElementCount " + totoalCount);
         return UserData.builder()
                 .totalElementCount(totoalCount)
-                .totoalPageCount(totoalCount % 50 > 0 ? totoalCount / 50 + 1 : totoalCount / 50)
+                .totoalPageCount(totoalCount % perPage > 0 ? totoalCount / perPage + 1 : totoalCount / perPage)
                 .picturesData(data)
                 .build();
     }
@@ -136,15 +136,15 @@ public class ImageServiceIpml implements ImageService {
     }
 
     @Override
-    public UserData getPictureDataByYearAndMonth(int page, User user, String year, String month) {
+    public UserData getPictureDataByYearAndMonth(int page, User user, String year, String month, int perPage) {
         List<UserImage> picturesData;
         int totalPageCount = 1;
         int totalElementsCount;
         if (month.equals("ALL")) {
-            picturesData = userImageRepository.getPicNamesByUserAndByCreatedAt(page, user.getId(), year, 50);
+            picturesData = userImageRepository.getPicNamesByUserAndByCreatedAt(page, user.getId(), year, perPage);
             totalElementsCount = userImageRepository.countByUserAndCreatedAtLike(user.getId(), year);
         } else {
-            picturesData = userImageRepository.getPicNamesByUserAndByCreatedAt(page, user.getId(), year+"-"+month, 50);
+            picturesData = userImageRepository.getPicNamesByUserAndByCreatedAt(page, user.getId(), year+"-"+month, perPage);
             totalElementsCount = userImageRepository.countByUserAndCreatedAtLike(user.getId(), year+"-"+month);
         }
         totalPageCount = getTotalPagesCountByAllElementsCount(totalElementsCount);

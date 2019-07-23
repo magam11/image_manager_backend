@@ -23,7 +23,6 @@ public class UserServiceImpl implements UserService {
     private UserImageRepository userImageRepository;
     private TwilioUtil twilioUtil;
     private JwtTokenUtil jwtTokenUtil;
-    private static final int preSize = 50;
     @Value("${count.limit}")
     private int limitCountofImage;
 
@@ -76,13 +75,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserData getBaseUserData(User user, int pageNumber) {
-        System.out.println("pagNumber "+pageNumber);
-        List<UserImage> resultPage = userImageRepository.findAllByUser(user.getId(),(pageNumber-1)*50,50);
+    public UserData getBaseUserData(User user, int pageNumber, int perPage) {
+        List<UserImage> resultPage = userImageRepository.findAllByUser(user.getId(),(pageNumber-1)*perPage,perPage);
         return UserData.builder()
                 .phoneNumber(user.getPhoneNumber())
                 .picturesData(resultPage)
-                .totoalPageCount(getTotalPageCount(userImageRepository.countAllByUserAndDeletedAtIsNull(user),preSize))
+                .totoalPageCount(getTotalPageCount(userImageRepository.countAllByUserAndDeletedAtIsNull(user),perPage))
                 .fruction(userImageRepository.countAllByUser(user) + "/" + limitCountofImage)
                 .build();
 

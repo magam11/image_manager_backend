@@ -22,14 +22,14 @@ public interface ImageService {
 
     void updateImageStatus(ImageData imageData, User user);
 
-    UserData getImagesBeetweenInDate(User currentUser,String fromDate, String toDate, int page);
+    UserData getImagesBeetweenInDate(User currentUser,String fromDate, String toDate, int page,int perPage);
 
-    UserData getDeletedImageData(User user, int page);
+    UserData getDeletedImageData(User user, int page, int perPage);
 
     void recoveerImagesInBatch(User user, ImageData imageData);
 
     void deleteImages(User user, Collection<String> picNames);
 
-    UserData getPictureDataByYearAndMonth(int page,User user, String year, String month);
+    UserData getPictureDataByYearAndMonth(int page,User user, String year, String month,int perPage);
 
 }

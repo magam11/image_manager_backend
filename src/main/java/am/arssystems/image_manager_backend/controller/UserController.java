@@ -61,8 +61,10 @@ public class UserController {
     @GetMapping("/data/page/{pageNumber}")
     @JsonView(View.Base.class)
     public ResponseEntity getUserData(@AuthenticationPrincipal CurrentUser currentUser,
-                                      @PathVariable("pageNumber")int pageNumber){
-       UserData response =  userService.getBaseUserData(currentUser.getUser(),pageNumber);
+                                      @PathVariable("pageNumber")int pageNumber,
+                                      @RequestParam(name = "perPage",required = false, defaultValue = "50")int perPage){
+        System.out.println("[eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee "+perPage);
+       UserData response =  userService.getBaseUserData(currentUser.getUser(),pageNumber,perPage);
        return ResponseEntity.ok(response);
 
     }
