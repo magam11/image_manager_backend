@@ -1,24 +1,27 @@
 package am.arssystems.image_manager_backend.service.serviceImpl;
 
 import am.arssystems.image_manager_backend.dto.request.ImageData;
+import am.arssystems.image_manager_backend.dto.request.PicNames;
 import am.arssystems.image_manager_backend.dto.response.UserData;
 import am.arssystems.image_manager_backend.entity.User;
 import am.arssystems.image_manager_backend.entity.UserImage;
 import am.arssystems.image_manager_backend.repository.UserImageRepository;
 import am.arssystems.image_manager_backend.repository.UserRepository;
 import am.arssystems.image_manager_backend.service.ImageService;
+import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import javax.servlet.http.HttpServletResponse;
+import java.io.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 @Service
 public class ImageServiceIpml implements ImageService {
@@ -154,6 +157,40 @@ public class ImageServiceIpml implements ImageService {
                 .totoalPageCount(totalPageCount)
                 .picturesData(picturesData)
                 .build();
+    }
+
+    @Override
+    public byte[] downloadManyImages(User user, List<String> picNames, HttpServletResponse httpServletResponse) {
+        String fileName = System.currentTimeMillis()+"pictures.zip";
+        FileOutputStream fos;
+        byte [] result =null;
+        try {
+             fos = new FileOutputStream(uploadImagePath+user.getId()+"\\"+fileName);
+            ZipOutputStream zipOut = new ZipOutputStream(fos);
+            for (String srcFile : picNames) {
+                File fileToZip = new File(uploadImagePath+user.getId()+"\\"+srcFile);
+                FileInputStream fis = new FileInputStream(fileToZip);
+                ZipEntry zipEntry = new ZipEntry(fileToZip.getName());
+                zipOut.putNextEntry(zipEntry);
+
+                byte[] bytes = new byte[1024];
+                int length;
+                while((length = fis.read(bytes)) >= 0) {
+                    zipOut.write(bytes, 0, length);
+                }
+                fis.close();
+            }
+            zipOut.close();
+            fos.close();
+            File zip = new File(uploadImagePath+user.getId()+"\\"+fileName);
+           result= IOUtils.toByteArray(new FileInputStream(zip));
+           zip.delete();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        httpServletResponse.setHeader( "Content-Disposition", "attachment;filename="
+                + fileName );
+        return result;
     }
 
 

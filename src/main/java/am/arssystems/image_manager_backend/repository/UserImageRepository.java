@@ -112,7 +112,7 @@ public interface UserImageRepository extends JpaRepository<UserImage, Integer> {
                                                            @Param("toDate") String toDate,
                                                            @Param("fromDate") String fromDate);
 
-    @Query(value = "select ui.* from user_image ui where  ui.user_id=:currentUserId and ui.deleted_at is not null limit :page, :itemsSize", nativeQuery = true)
+    @Query(value = "select ui.* from user_image ui where  ui.user_id=:currentUserId and ui.deleted_at is null limit :page, :itemsSize", nativeQuery = true)
     List<UserImage> findAllByUserAndCreatedAtIsNotNull(@Param("currentUserId") int userId,
                                                        @Param("page") int page,
                                                        @Param("itemsSize") int itemsSize);
@@ -129,4 +129,7 @@ public interface UserImageRepository extends JpaRepository<UserImage, Integer> {
             " ui.created_at like concat(:dateData,'%') and ui.deleted_at is null", nativeQuery = true)
     int countByUserAndCreatedAtLike(@Param("currentUserId") int userId ,
                                     @Param("dateData") String date);
+
+
+
 }

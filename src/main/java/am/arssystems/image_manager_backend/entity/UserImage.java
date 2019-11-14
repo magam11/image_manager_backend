@@ -12,6 +12,7 @@ import org.springframework.data.annotation.CreatedDate;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @AllArgsConstructor
@@ -44,12 +45,9 @@ public class UserImage {
     private Date deletedAt;
 
 
-
-
-//    @PrePersist
-//    public void prePersist() {
-//        createdAt =String.valueOf(Timestamp.valueOf(LocalDateTime.now()));
-//    }
-
+    @PrePersist
+    public void prepersist(){
+        createdAt= Timestamp.valueOf(LocalDateTime.now());
+    }
 
 }

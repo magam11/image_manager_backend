@@ -1,10 +1,12 @@
 package am.arssystems.image_manager_backend.service;
 
 import am.arssystems.image_manager_backend.dto.request.ImageData;
+import am.arssystems.image_manager_backend.dto.request.PicNames;
 import am.arssystems.image_manager_backend.dto.response.UserData;
 import am.arssystems.image_manager_backend.entity.User;
 import am.arssystems.image_manager_backend.entity.UserImage;
 
+import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
@@ -32,4 +34,5 @@ public interface ImageService {
 
     UserData getPictureDataByYearAndMonth(int page,User user, String year, String month,int perPage);
 
+    byte[] downloadManyImages(User user, List<String> picNames, HttpServletResponse httpServletResponse);
 }
