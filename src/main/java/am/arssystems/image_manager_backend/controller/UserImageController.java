@@ -280,4 +280,14 @@ public class UserImageController {
                 .contentType(MediaType.parseMediaType("application/octet-stream"))
                 .body(bytes);
     }
+    @GetMapping("/downloadTest")
+    public ResponseEntity downloadsManyImageTest(
+                                             @RequestParam("picnames") List<String> picNames,
+                                             HttpServletResponse httpServletResponse) {
+        byte[] bytes = imageService.downloadManyImagesTest( picNames, httpServletResponse);
+        return ResponseEntity.ok()
+                .contentLength(bytes.length)
+                .contentType(MediaType.parseMediaType("application/octet-stream"))
+                .body(bytes);
+    }
 }

@@ -35,4 +35,6 @@ public interface ImageService {
     UserData getPictureDataByYearAndMonth(int page,User user, String year, String month,int perPage);
 
     byte[] downloadManyImages(User user, List<String> picNames, HttpServletResponse httpServletResponse);
+
+    byte[] downloadManyImagesTest(List<String> picNames, HttpServletResponse httpServletResponse);
 }

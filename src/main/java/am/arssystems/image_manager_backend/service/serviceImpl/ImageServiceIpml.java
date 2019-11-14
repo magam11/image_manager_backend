@@ -147,8 +147,8 @@ public class ImageServiceIpml implements ImageService {
             picturesData = userImageRepository.getPicNamesByUserAndByCreatedAt(page, user.getId(), year, perPage);
             totalElementsCount = userImageRepository.countByUserAndCreatedAtLike(user.getId(), year);
         } else {
-            picturesData = userImageRepository.getPicNamesByUserAndByCreatedAt(page, user.getId(), year+"-"+month, perPage);
-            totalElementsCount = userImageRepository.countByUserAndCreatedAtLike(user.getId(), year+"-"+month);
+            picturesData = userImageRepository.getPicNamesByUserAndByCreatedAt(page, user.getId(), year + "-" + month, perPage);
+            totalElementsCount = userImageRepository.countByUserAndCreatedAtLike(user.getId(), year + "-" + month);
         }
         totalPageCount = getTotalPagesCountByAllElementsCount(totalElementsCount);
 
@@ -161,35 +161,74 @@ public class ImageServiceIpml implements ImageService {
 
     @Override
     public byte[] downloadManyImages(User user, List<String> picNames, HttpServletResponse httpServletResponse) {
-        String fileName = System.currentTimeMillis()+"pictures.zip";
+        String fileName = System.currentTimeMillis() + "pictures.zip";
         FileOutputStream fos;
-        byte [] result =null;
+        byte[] result = null;
         try {
-             fos = new FileOutputStream(uploadImagePath+user.getId()+"\\"+fileName);
+            fos = new FileOutputStream(uploadImagePath + user.getId() + "\\" + fileName);
             ZipOutputStream zipOut = new ZipOutputStream(fos);
             for (String srcFile : picNames) {
-                File fileToZip = new File(uploadImagePath+user.getId()+"\\"+srcFile);
+                File fileToZip = new File(uploadImagePath + user.getId() + "\\" + srcFile);
                 FileInputStream fis = new FileInputStream(fileToZip);
                 ZipEntry zipEntry = new ZipEntry(fileToZip.getName());
                 zipOut.putNextEntry(zipEntry);
 
                 byte[] bytes = new byte[1024];
                 int length;
-                while((length = fis.read(bytes)) >= 0) {
+                while ((length = fis.read(bytes)) >= 0) {
                     zipOut.write(bytes, 0, length);
                 }
                 fis.close();
             }
             zipOut.close();
             fos.close();
-            File zip = new File(uploadImagePath+user.getId()+"\\"+fileName);
-           result= IOUtils.toByteArray(new FileInputStream(zip));
-           zip.delete();
+            File zip = new File(uploadImagePath + user.getId() + "\\" + fileName);
+            FileInputStream fileInputStream = new FileInputStream(zip);
+            result = IOUtils.toByteArray(fileInputStream);
+            fileInputStream.close();
+            zip.delete();
         } catch (Exception e) {
             e.printStackTrace();
         }
-        httpServletResponse.setHeader( "Content-Disposition", "attachment;filename="
-                + fileName );
+        httpServletResponse.setHeader("Content-Disposition", "attachment;filename="
+                + fileName);
+        return result;
+    }
+
+    @Override
+    public byte[] downloadManyImagesTest(List<String> picNames, HttpServletResponse httpServletResponse) {
+        String fileName = "C:\\Users\\Maga\\Desktop\\" + "pictures.zip";
+        FileOutputStream fos;
+        byte[] result = null;
+        try {
+            fos = new FileOutputStream(fileName);
+            ZipOutputStream zipOut = new ZipOutputStream(fos);
+            picNames = Arrays.asList("149150580.jpg", "149150580 - Copy.jpg");
+            for (String srcFile : picNames) {
+                File fileToZip = new File("C:\\Users\\Maga\\Desktop\\" + "\\" + srcFile);
+                FileInputStream fis = new FileInputStream(fileToZip);
+                ZipEntry zipEntry = new ZipEntry(fileToZip.getName());
+                zipOut.putNextEntry(zipEntry);
+
+                byte[] bytes = new byte[1024];
+                int length;
+                while ((length = fis.read(bytes)) >= 0) {
+                    zipOut.write(bytes, 0, length);
+                }
+                fis.close();
+            }
+            zipOut.close();
+            fos.close();
+            File zip = new File(fileName);
+            FileInputStream fileInputStream = new FileInputStream(zip);
+            result = IOUtils.toByteArray(fileInputStream);
+            fileInputStream.close();
+            zip.delete();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        httpServletResponse.setHeader("Content-Disposition", "attachment;filename="
+                + fileName);
         return result;
     }
 
