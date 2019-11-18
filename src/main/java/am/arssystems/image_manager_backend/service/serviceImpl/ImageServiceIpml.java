@@ -197,10 +197,9 @@ public class ImageServiceIpml implements ImageService {
 
 
     @Override
-    public String downloadManyImagesWithPath(User user, List<String> picNames, HttpServletResponse httpServletResponse) {
+    public String downloadManyImagesWithPath(User user, List<String> picNames) {
         String fileName = System.currentTimeMillis() + "pictures.zip";
         FileOutputStream fos;
-        byte[] result = null;
         try {
             fos = new FileOutputStream(uploadImagePath + user.getId() + "\\" + fileName);
             ZipOutputStream zipOut = new ZipOutputStream(fos);
@@ -222,10 +221,10 @@ public class ImageServiceIpml implements ImageService {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        httpServletResponse.setHeader("Content-Disposition", "attachment;filename="
-                + fileName);
-        return uploadImagePath + user.getId() + "\\" + fileName;
+        return "http://192.168.2.111:8082/image/downloadZip?zipName="+ user.getId() + "/"+fileName;
     }
+
+
     @Override
     public byte[] downloadManyImagesTest(List<String> picNames, HttpServletResponse httpServletResponse) {
         String fileName = "C:\\Users\\Maga\\Desktop\\" + "pictures.zip";
@@ -264,11 +263,11 @@ public class ImageServiceIpml implements ImageService {
     }
 
     @Override
-    public void downloadZipFile(User user, String zipFileName, HttpServletResponse response) {
+    public void downloadZipFile( String zipFileName, HttpServletResponse response) {
         response.setHeader("Content-Disposition", "attachment;filename="
                 + zipFileName);
 
-        String filePath = uploadImagePath+user.getId()+"\\"+zipFileName;
+        String filePath = uploadImagePath+zipFileName;
         File zip = new File(filePath);
         try {
             FileInputStream fileInputStream = new FileInputStream(zip);

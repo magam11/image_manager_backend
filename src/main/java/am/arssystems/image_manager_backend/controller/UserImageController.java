@@ -284,20 +284,19 @@ public class UserImageController {
     @GetMapping("/createZip")
     @PreAuthorize("hasAuthority('user')")
     public ResponseEntity downloadsManyImage(@AuthenticationPrincipal CurrentUser currentUser,
-                                             @RequestParam("picnames") List<String> picNames,
-                                             HttpServletResponse httpServletResponse) {
-        String path = imageService.downloadManyImagesWithPath(currentUser.getUser(), picNames, httpServletResponse);
-        return ResponseEntity.ok()
-                .body(path);
+                                             @RequestParam("picnames") List<String> picNames) {
+        String path = imageService.downloadManyImagesWithPath(currentUser.getUser(), picNames);
+        Map<String, Object> body = new HashMap<>();
+        body.put("zipFileName",path);
+        return ResponseEntity.ok(body);
     }
 
 
     @GetMapping("/downloadZip")
-    @PreAuthorize("hasAuthority('user')")
-    public void downloadZipFile(@AuthenticationPrincipal CurrentUser currentUser,
-                               @RequestParam(name = "zipName")String zipFilePath,
-                               HttpServletResponse response){
-        imageService.downloadZipFile(currentUser.getUser(),zipFilePath, response);
+    public void downloadZipFile(
+            @RequestParam(name = "zipName")String zipFilePath,
+            HttpServletResponse response){
+        imageService.downloadZipFile(zipFilePath, response);
     }
 
     @GetMapping("/downloadTest")
