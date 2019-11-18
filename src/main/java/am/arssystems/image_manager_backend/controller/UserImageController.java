@@ -269,17 +269,37 @@ public class UserImageController {
     }
 
 
-    @GetMapping("/download")
+//    @GetMapping("/download")
+////    @PreAuthorize("hasAuthority('user')")
+////    public ResponseEntity downloadsManyImage(@AuthenticationPrincipal CurrentUser currentUser,
+////                                             @RequestParam("picnames") List<String> picNames,
+////                                             HttpServletResponse httpServletResponse) {
+////        byte[] bytes = imageService.downloadManyImages(currentUser.getUser(), picNames, httpServletResponse);
+////        return ResponseEntity.ok()
+////                .contentLength(bytes.length)
+////                .contentType(MediaType.parseMediaType("application/octet-stream"))
+////                .body(bytes);
+////    }
+
+    @GetMapping("/createZip")
     @PreAuthorize("hasAuthority('user')")
     public ResponseEntity downloadsManyImage(@AuthenticationPrincipal CurrentUser currentUser,
                                              @RequestParam("picnames") List<String> picNames,
                                              HttpServletResponse httpServletResponse) {
-        byte[] bytes = imageService.downloadManyImages(currentUser.getUser(), picNames, httpServletResponse);
+        String path = imageService.downloadManyImagesWithPath(currentUser.getUser(), picNames, httpServletResponse);
         return ResponseEntity.ok()
-                .contentLength(bytes.length)
-                .contentType(MediaType.parseMediaType("application/octet-stream"))
-                .body(bytes);
+                .body(path);
     }
+
+
+    @GetMapping("/downloadZip")
+    @PreAuthorize("hasAuthority('user')")
+    public void downloadZipFile(@AuthenticationPrincipal CurrentUser currentUser,
+                               @RequestParam(name = "zipName")String zipFilePath,
+                               HttpServletResponse response){
+        imageService.downloadZipFile(currentUser.getUser(),zipFilePath, response);
+    }
+
     @GetMapping("/downloadTest")
     public ResponseEntity downloadsManyImageTest(
                                              @RequestParam("picnames") List<String> picNames,

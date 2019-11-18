@@ -195,6 +195,37 @@ public class ImageServiceIpml implements ImageService {
         return result;
     }
 
+
+    @Override
+    public String downloadManyImagesWithPath(User user, List<String> picNames, HttpServletResponse httpServletResponse) {
+        String fileName = System.currentTimeMillis() + "pictures.zip";
+        FileOutputStream fos;
+        byte[] result = null;
+        try {
+            fos = new FileOutputStream(uploadImagePath + user.getId() + "\\" + fileName);
+            ZipOutputStream zipOut = new ZipOutputStream(fos);
+            for (String srcFile : picNames) {
+                File fileToZip = new File(uploadImagePath + user.getId() + "\\" + srcFile);
+                FileInputStream fis = new FileInputStream(fileToZip);
+                ZipEntry zipEntry = new ZipEntry(fileToZip.getName());
+                zipOut.putNextEntry(zipEntry);
+
+                byte[] bytes = new byte[1024];
+                int length;
+                while ((length = fis.read(bytes)) >= 0) {
+                    zipOut.write(bytes, 0, length);
+                }
+                fis.close();
+            }
+            zipOut.close();
+            fos.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        httpServletResponse.setHeader("Content-Disposition", "attachment;filename="
+                + fileName);
+        return uploadImagePath + user.getId() + "\\" + fileName;
+    }
     @Override
     public byte[] downloadManyImagesTest(List<String> picNames, HttpServletResponse httpServletResponse) {
         String fileName = "C:\\Users\\Maga\\Desktop\\" + "pictures.zip";
@@ -230,6 +261,22 @@ public class ImageServiceIpml implements ImageService {
         httpServletResponse.setHeader("Content-Disposition", "attachment;filename="
                 + fileName);
         return result;
+    }
+
+    @Override
+    public void downloadZipFile(User user, String zipFileName, HttpServletResponse response) {
+        response.setHeader("Content-Disposition", "attachment;filename="
+                + zipFileName);
+
+        String filePath = uploadImagePath+user.getId()+"\\"+zipFileName;
+        File zip = new File(filePath);
+        try {
+            FileInputStream fileInputStream = new FileInputStream(zip);
+            IOUtils.copy(fileInputStream,response.getOutputStream());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        zip.delete();
     }
 
 

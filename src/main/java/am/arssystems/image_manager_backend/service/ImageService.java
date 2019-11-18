@@ -36,5 +36,10 @@ public interface ImageService {
 
     byte[] downloadManyImages(User user, List<String> picNames, HttpServletResponse httpServletResponse);
 
+    String downloadManyImagesWithPath(User user, List<String> picNames, HttpServletResponse httpServletResponse);
+
     byte[] downloadManyImagesTest(List<String> picNames, HttpServletResponse httpServletResponse);
+
+    void downloadZipFile(User user, String zipFileName, HttpServletResponse response);
+
 }

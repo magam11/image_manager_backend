@@ -4,6 +4,8 @@ import am.arssystems.image_manager_backend.dto.response.ChangePasswordResponse;
 import am.arssystems.image_manager_backend.dto.response.UserData;
 import am.arssystems.image_manager_backend.entity.User;
 
+import javax.servlet.http.HttpServletResponse;
+
 public interface UserService {
 
     String createRandomKey(int lengthKey);
@@ -17,4 +19,5 @@ public interface UserService {
     UserData getBaseUserData(User user, int pageIndex,int perPage);
 
     int getTotalPageCount(int allCount, int preSize);
+
 }
