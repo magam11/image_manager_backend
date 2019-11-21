@@ -224,7 +224,6 @@ public class ImageServiceIpml implements ImageService {
         return "http://192.168.2.111:8082/image/downloadZip?zipName="+ user.getId() + "/"+fileName;
     }
 
-
     @Override
     public byte[] downloadManyImagesTest(List<String> picNames, HttpServletResponse httpServletResponse) {
         String fileName = "C:\\Users\\Maga\\Desktop\\" + "pictures.zip";

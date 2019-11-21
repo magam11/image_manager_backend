@@ -2,6 +2,7 @@ package am.arssystems.image_manager_backend.controller;
 
 import am.arssystems.image_manager_backend.dto.request.ImageData;
 import am.arssystems.image_manager_backend.dto.request.ImageManagerRequest;
+import am.arssystems.image_manager_backend.dto.request.ImagesData;
 import am.arssystems.image_manager_backend.dto.request.PicNames;
 import am.arssystems.image_manager_backend.dto.response.ListOfPickNames;
 import am.arssystems.image_manager_backend.dto.response.NextPreviousImageResponse;
@@ -155,6 +156,15 @@ public class UserImageController {
     public ResponseEntity updateUserImageDeletedAt(@RequestBody ImageManagerRequest imageManagerRequest,
                                                    @AuthenticationPrincipal CurrentUser currentUser) {
         imageService.setDeletedAtDate(currentUser.getUser(), imageManagerRequest.getPicName(), imageManagerRequest.getActionType());
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/ToRecycleBin")
+    @PreAuthorize("hasAuthority('user')")
+    public ResponseEntity updateUserimageDeletedAt(@RequestBody ImagesData imageManagerRequest, @AuthenticationPrincipal CurrentUser currentUser) {
+        for (String picName : imageManagerRequest.getPicNames()) {
+            imageService.setDeletedAtDate(currentUser.getUser(), picName, imageManagerRequest.getActionType());
+        }
         return ResponseEntity.ok().build();
     }
 
